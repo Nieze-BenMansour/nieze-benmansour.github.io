@@ -1007,6 +1007,12 @@ section,
   position: relative;
 }
 
+.portfolio .portfolio-item img {
+  height: 250px; /* Adjusted height */
+  object-fit: cover;
+  width: 100%; /* Ensure it fills the container width */
+}
+
 .portfolio .portfolio-item .portfolio-info {
   opacity: 0;
   position: absolute;
