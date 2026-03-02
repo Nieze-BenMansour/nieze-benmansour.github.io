@@ -598,6 +598,37 @@
           </table>
             </div>
           </div>
+          <div class="collapsible-block" data-block="identities-entra-ds">
+            <h3 id="identities-entra-ds" class="block-title">Examine Microsoft Entra Domain Services <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <div class="block-content">
+          <h4>Overview</h4>
+          <p>Many LOB apps run on domain-joined devices and use <strong>AD DS</strong> for authentication and <strong>Group Policy</strong> for management. When moving these apps to Azure, you need authentication options. Alternatives include: a <strong>site-to-site VPN</strong> (auth traffic crosses the VPN) or <strong>replica domain controllers</strong> as Azure VMs (replication crosses the VPN; auth stays in the cloud). Both add cost and management.</p>
+          <p><strong>Microsoft Entra Domain Services</strong> is a managed alternative. It runs as part of <strong>Microsoft Entra ID P1 or P2</strong> and provides domain services—<strong>Group Policy</strong>, <strong>domain join</strong>, <strong>Kerberos</strong>—to your Entra tenant. It is compatible with on-premises AD DS, so you don’t need to deploy or manage domain controllers in the cloud.</p>
+          <p>With <strong>Microsoft Entra Connect</strong>, users can use the same organizational credentials in on-prem AD DS and in Entra Domain Services. You can also use Entra Domain Services as a <strong>cloud-only</strong> service (no on-prem AD DS): create an Entra tenant, enable Entra Domain Services, and use a virtual network so on-prem resources can use the managed domain services.</p>
+
+          <h4>Benefits</h4>
+          <ul>
+            <li>No need to manage, update, or monitor domain controllers.</li>
+            <li>No need to deploy or manage Active Directory replication.</li>
+            <li>No Domain Admins or Enterprise Admins groups for the managed domain.</li>
+          </ul>
+
+          <h4>Limitations</h4>
+          <ul>
+            <li>Only the <strong>base computer</strong> Active Directory object is supported.</li>
+            <li>Schema <strong>cannot be extended</strong> for the Entra Domain Services domain.</li>
+            <li><strong>OU structure is flat</strong>; nested OUs are not supported.</li>
+            <li>There is a <strong>built-in GPO</strong> for computer and user accounts.</li>
+            <li>Built-in GPOs <strong>cannot target OUs</strong>. WMI filters and security-group filtering are not supported.</li>
+          </ul>
+
+          <h4>Use cases</h4>
+          <p>Migrate applications that use <strong>LDAP</strong>, <strong>NTLM</strong>, or <strong>Kerberos</strong> from on-prem to the cloud. Run apps such as <strong>SQL Server</strong> or <strong>SharePoint Server</strong> on Azure VMs without domain controllers in the cloud or a VPN to on-prem.</p>
+
+          <h4>Enablement and pricing</h4>
+          <p>Enable Microsoft Entra Domain Services via the <strong>Azure portal</strong>. Billing is <strong>per hour</strong> based on directory size.</p>
+            </div>
+          </div>
           <div class="collapsible-block" data-block="identities-governance">
             <h3 id="identities-governance" class="block-title">Subscriptions and governance <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
             <div class="block-content">
