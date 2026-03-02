@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AZ-104 Study Guide</title>
+  <script>
+    (function() {
+      try {
+        var t = localStorage.getItem("az104-theme");
+        if (t === "dark") document.documentElement.setAttribute("data-theme", "dark");
+      } catch (e) {}
+    })();
+  </script>
+  <style>
+    :root {
+      --sidebar-width: 280px;
+      --header-height: 56px;
+      --bg: #f8f9fa;
+      --text: #1a1a1a;
+      --border: #dee2e6;
+      --accent: #0078d4;
+      --accent-soft: #e3f2fd;
+      --nav-bg: #fff;
+      --muted: #666;
+      --placeholder-bg: #f0f0f0;
+      --code-bg: #e9ecef;
+      --code-border: #ced4da;
+      --code-text: #c41e3a;
+      --cmd-bg: #d4edda;
+      --cmd-border: #28a745;
+      --cmd-text: #155724;
+      --table-header-bg: #e3f2fd;
+      --table-border: #bbdefb;
+    }
+
+    [data-theme="dark"] {
+      --bg: #1a1a1a;
+      --text: #e8e8e8;
+      --border: #404040;
+      --accent: #58a6ff;
+      --accent-soft: #1e3a5f;
+      --nav-bg: #252525;
+      --muted: #a0a0a0;
+      --placeholder-bg: #2d2d2d;
+      --code-bg: #2d2d2d;
+      --code-border: #404040;
+      --code-text: #f97583;
+      --cmd-bg: #1e3d2e;
+      --cmd-border: #2ea043;
+      --cmd-text: #7ee787;
+      --table-header-bg: #1e3a5f;
+      --table-border: #2d4a6a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    /* Layout */
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: var(--sidebar-width);
+      background: var(--nav-bg);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      z-index: 100;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 1rem 1.25rem;
+      font-weight: 700;
+      font-size: 1.1rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--nav-bg);
+    }
+
+    .sidebar-header a {
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .sidebar-header .title-link {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .theme-toggle:hover {
+      background: var(--border);
+    }
+
+    .theme-toggle:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    nav ul {
+      list-style: none;
+      margin: 0;
+      padding: 0.5rem 0;
+    }
+
+    nav > ul > li {
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav a {
+      display: block;
+      padding: 0.6rem 1.25rem;
+      color: var(--text);
+      text-decoration: none;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    nav a:hover {
+      background: var(--bg);
+      color: var(--accent);
+    }
+
+    nav .domain-link {
+      font-weight: 600;
+      padding: 0.75rem 1.25rem;
+    }
+
+    nav .domain-link::before {
+      content: "▸ ";
+      font-size: 0.75em;
+      transition: transform 0.2s ease;
+    }
+
+    nav .domain.expanded > .domain-link::before {
+      transform: rotate(90deg);
+    }
+
+    nav .sub-nav {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease;
+      background: var(--bg);
+    }
+
+    nav .domain.expanded .sub-nav {
+      max-height: 800px;
+    }
+
+    nav .sub-nav a {
+      padding-left: 2rem;
+      font-size: 0.95rem;
+      font-weight: 400;
+    }
+
+    nav .sub-sub-nav {
+      list-style: none;
+      margin: 0;
+      padding: 0 0 0.25rem 0;
+      padding-left: 1rem;
+    }
+
+    nav .sub-sub-nav a {
+      padding: 0.35rem 1.25rem 0.35rem 2rem;
+      font-size: 0.875rem;
+      color: var(--muted);
+    }
+
+    nav .sub-sub-nav a:hover {
+      color: var(--accent);
+    }
+
+    /* Hamburger (mobile) */
+    .menu-toggle {
+      display: none;
+      position: fixed;
+      top: 0.75rem;
+      left: 0.75rem;
+      z-index: 101;
+      width: 44px;
+      height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--nav-bg);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+
+    .menu-toggle:focus {
+      outline: 2px solid var(--accent);
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 99;
+    }
+
+    .sidebar-overlay.visible {
+      display: block;
+    }
+
+    /* Main content */
+    .main-wrap {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      min-height: 100vh;
+      padding: 2rem 2.5rem 3rem;
+    }
+
+    main {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    main section {
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    main section:last-child {
+      border-bottom: none;
+    }
+
+    main h2 {
+      font-size: 1.5rem;
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      color: var(--accent);
+    }
+
+    main .weight {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    main h3 {
+      font-size: 1.15rem;
+      margin: 1.5rem 0 0.5rem;
+      color: var(--text);
+    }
+
+    main h4 {
+      font-size: 1.05rem;
+      margin: 1.25rem 0 0.5rem;
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* Inline code */
+    main code {
+      font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, monospace;
+      font-size: 0.9em;
+      padding: 0.2em 0.4em;
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      border-radius: 4px;
+      color: var(--code-text);
+    }
+
+    /* CLI / shell commands */
+    main code.cmd {
+      background: var(--cmd-bg);
+      border-color: var(--cmd-border);
+      color: var(--cmd-text);
+    }
+
+    /* Block code (e.g. multi-line commands or JSON) */
+    main pre {
+      margin: 0.75rem 0;
+      padding: 1rem 1.25rem;
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, monospace;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      color: var(--code-text);
+    }
+
+    main pre code {
+      padding: 0;
+      background: none;
+      border: none;
+      color: inherit;
+      font-size: inherit;
+    }
+
+    /* Tables in content */
+    main table {
+      margin: 0.75rem 0;
+      border: 1px solid var(--table-border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    main table th {
+      background: var(--table-header-bg);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    main table td, main table th {
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--table-border);
+    }
+
+    main table tr:last-child td, main table tr:last-child th {
+      border-bottom: none;
+    }
+
+    /* Collapsible content blocks */
+    .collapsible-block {
+      margin-bottom: 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .collapsible-block .block-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin: 0;
+      padding: 0.65rem 1rem;
+      font-size: 1.15rem;
+      cursor: pointer;
+      user-select: none;
+      background: var(--accent-soft);
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s ease;
+    }
+
+    .collapsible-block .block-title:hover {
+      background: var(--border);
+    }
+
+    .collapsible-block.collapsed .block-title {
+      border-bottom: none;
+    }
+
+    .collapsible-block .block-toggle {
+      flex-shrink: 0;
+      margin: 0;
+      padding: 0.2rem 0.4rem;
+      border: none;
+      background: transparent;
+      color: var(--accent);
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .collapsible-block.collapsed .block-toggle {
+      transform: rotate(-90deg);
+    }
+
+    .collapsible-block .block-content {
+      padding: 1rem 1.25rem;
+      background: var(--bg);
+    }
+
+    .collapsible-block.collapsed .block-content {
+      display: none;
+    }
+
+    .fold-unfold {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .fold-unfold button {
+      padding: 0.4rem 0.75rem;
+      font-size: 0.875rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--nav-bg);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .fold-unfold button:hover {
+      background: var(--border);
+    }
+
+    .placeholder {
+      color: var(--muted);
+      font-style: italic;
+      padding: 1rem;
+      background: var(--placeholder-bg);
+      border-radius: 6px;
+      border-left: 4px solid var(--accent);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .menu-toggle {
+        display: flex;
+      }
+
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+        box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+      }
+
+      .main-wrap {
+        margin-left: 0;
+        padding: 4rem 1.25rem 2rem;
+      }
+    }
+
+    /* Print */
+    @media print {
+      .menu-toggle,
+      .theme-toggle,
+      .fold-unfold,
+      .sidebar-overlay,
+      .sidebar {
+        display: none !important;
+      }
+
+      .collapsible-block.collapsed .block-content {
+        display: block !important;
+      }
+
+      .main-wrap {
+        margin-left: 0;
+        padding: 0;
+      }
+
+      main section {
+        page-break-inside: avoid;
+      }
+
+      body {
+        background: #fff;
+      }
+
+      main code {
+        background: #eee;
+        border-color: #ccc;
+        color: #333;
+      }
+
+      main code.cmd {
+        background: #e0f0e0;
+        border-color: #28a745;
+        color: #155724;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button type="button" class="menu-toggle" id="menuToggle" aria-label="Open menu">☰</button>
+  <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <a href="./" class="title-link">AZ-104 Study Guide</a>
+        <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" title="Toggle dark/light mode">☀</button>
+      </div>
+      <nav>
+        <ul>
+          <li class="domain" data-domain="identities">
+            <a href="#identities" class="domain-link">1. Manage Azure Identities and Governance</a>
+            <ul class="sub-nav">
+              <li class="has-children">
+                <a href="#identities-users">Users and groups</a>
+                <ul class="sub-sub-nav">
+                  <li><a href="#identities-entra-overview">Entra ID overview</a></li>
+                  <li><a href="#identities-tenants">Tenants</a></li>
+                  <li><a href="#identities-schema">Schema</a></li>
+                  <li><a href="#identities-entra-vs-ad">Entra vs AD DS</a></li>
+                  <li><a href="#identities-entra-cloud">Entra for cloud apps</a></li>
+                </ul>
+              </li>
+              <li class="has-children">
+                <a href="#identities-access">Access to Azure resources</a>
+                <ul class="sub-sub-nav">
+                  <li><a href="#identities-cloudshell">Azure Cloud Shell</a></li>
+                  <li><a href="#identities-cloudshell-when">When to use Cloud Shell</a></li>
+                </ul>
+              </li>
+              <li><a href="#identities-governance">Subscriptions and governance</a></li>
+            </ul>
+          </li>
+          <li class="domain" data-domain="storage">
+            <a href="#storage" class="domain-link">2. Implement and Manage Storage</a>
+            <ul class="sub-nav">
+              <li><a href="#storage-access">Storage access</a></li>
+              <li><a href="#storage-accounts">Storage accounts</a></li>
+              <li><a href="#storage-blob-files">Blob and Azure Files</a></li>
+            </ul>
+          </li>
+          <li class="domain" data-domain="compute">
+            <a href="#compute" class="domain-link">3. Deploy and Manage Azure Compute</a>
+            <ul class="sub-nav">
+              <li><a href="#compute-arm">ARM/Bicep automation</a></li>
+              <li><a href="#compute-vms">Virtual machines</a></li>
+              <li><a href="#compute-containers">Containers</a></li>
+              <li><a href="#compute-appservice">App Service</a></li>
+            </ul>
+          </li>
+          <li class="domain" data-domain="networking">
+            <a href="#networking" class="domain-link">4. Implement and Manage Virtual Networking</a>
+            <ul class="sub-nav">
+              <li><a href="#networking-vnets">Virtual networks</a></li>
+              <li><a href="#networking-secure">Secure access</a></li>
+              <li><a href="#networking-dns-lb">Name resolution and load balancing</a></li>
+            </ul>
+          </li>
+          <li class="domain" data-domain="monitor">
+            <a href="#monitor" class="domain-link">5. Monitor and Maintain Azure Resources</a>
+            <ul class="sub-nav">
+              <li><a href="#monitor-resources">Monitoring</a></li>
+              <li><a href="#monitor-backup">Backup and recovery</a></li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <div class="main-wrap">
+      <main>
+        <div class="fold-unfold">
+          <button type="button" id="foldAll" aria-label="Collapse all sections">Fold all</button>
+          <button type="button" id="unfoldAll" aria-label="Expand all sections">Unfold all</button>
+        </div>
+        <section id="identities">
+          <h2>1. Manage Azure Identities and Governance</h2>
+          <p class="weight">Exam weight: 20–25%</p>
+          <div class="collapsible-block" data-block="identities-users">
+            <h3 id="identities-users" class="block-title">Users and groups <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <div class="block-content">
+          <h4 id="identities-entra-overview">Microsoft Entra ID overview</h4>
+          <p><strong>Microsoft Entra ID</strong> is a Microsoft-managed <strong>PaaS directory service</strong> in the cloud (not IaaS; you don’t run or maintain it). It provides identity and access management for cloud and hybrid environments. Unlike AD DS (on-prem, domain controllers, GPOs), Entra ID is built for web-based apps and cloud services, with features like MFA, identity protection, and self-service password reset.</p>
+          <p><strong>Use Entra ID to:</strong> configure access to applications; SSO to SaaS apps; manage users and groups and provisioning; federation; identity management; detect irregular sign-in activity; MFA; extend on-prem AD to the cloud; Application Proxy; Conditional Access.</p>
+          <p><strong>Licensing:</strong> A <strong>Free</strong> tier is included with every new Azure subscription (and with Microsoft 365/Intune). <strong>Basic</strong> and <strong>Premium</strong> add advanced features. Creating an Azure subscription with a Microsoft account gives you a default Entra tenant named <strong>Default Directory</strong>.</p>
+          <h4 id="identities-tenants">Microsoft Entra tenants</h4>
+          <p>Entra ID is <strong>multi-tenant</strong> by design; each directory instance is isolated. A <strong>tenant</strong> is an organization’s Entra instance (or technically, one Entra directory). An <strong>Azure subscription is linked to exactly one</strong> Entra tenant at a time; that link lets you grant RBAC on the subscription to users, groups, and apps in that tenant. The same tenant can be <strong>associated with multiple Azure subscriptions</strong>.</p>
+          <p>Each tenant gets a default DNS domain: <code>&lt;unique-prefix&gt;.onmicrosoft.com</code>. You can add <strong>custom domains</strong>. The tenant is the <strong>security boundary</strong> and container for users, groups, and applications.</p>
+          <h4 id="identities-schema">Microsoft Entra schema</h4>
+          <p>Fewer object types than AD DS: no <strong>computer</strong> class (there is a <strong>device</strong> class; join process differs from AD DS). No <strong>OU</strong> class—no custom hierarchy of containers; use <strong>group membership</strong> instead. Schema is extensible and reversible.</p>
+          <p>No traditional GPOs; Entra uses <strong>modern management</strong>. Strength: directory services, storing/publishing user/device/application data, authentication and authorization.</p>
+          <p><strong>Applications:</strong> <code>Application</code> = app definition; <code>servicePrincipal</code> = instance of that app in a tenant. One app can be used in many tenants by creating a service principal per tenant (created when you register the app in that tenant).</p>
+          <h4 id="identities-entra-vs-ad">Entra ID vs AD DS</h4>
+          <p><strong>AD DS (on-prem):</strong> Hierarchical X.500-based directory; DNS for locating domain controllers; <strong>LDAP</strong> for query/management; <strong>Kerberos</strong> for authentication; <strong>OUs and GPOs</strong> for management; <strong>computer objects</strong> (domain-joined machines); trusts between domains. Part of the Windows Active Directory suite (AD CS, AD LDS, AD FS, AD RMS). You can run AD DS on Azure VMs for scale/availability—that does <strong>not</strong> use Entra ID. When deploying AD DS on an Azure VM, use separate data disks (not C:) for the AD database, logs, and sysvol; set <strong>Host Cache Preference = None</strong> for those disks.</p>
+          <p><strong>Microsoft Entra ID (cloud):</strong> Identity solution for <strong>internet-based apps</strong> (HTTP/HTTPS). <strong>Multi-tenant</strong> directory; <strong>flat</strong> user/group structure—no OUs or GPOs. No LDAP—uses <strong>REST APIs</strong> over HTTP/HTTPS. No Kerberos—uses <strong>SAML, WS-Federation, OpenID Connect</strong> for authentication and <strong>OAuth</strong> for authorization. Includes federation; many third-party services (e.g. Facebook) federate with Entra ID.</p>
+          <h4 id="identities-entra-cloud">Entra ID as directory for cloud apps</h4>
+          <p>Cloud services (Microsoft 365, Intune, etc.) need a cloud directory for authentication. Using <strong>one Entra tenant</strong> for all Microsoft cloud services (Microsoft 365, Azure, Dynamics 365, Intune) gives a single identity layer. Entra ID provides centralized auth for Azure apps, including with other identity providers or on-prem AD DS, and <strong>SSO</strong> for Microsoft and third-party apps (e.g. Facebook, Google, Yahoo).</p>
+          <p>For custom apps, you can enable <strong>Microsoft Entra authentication</strong> for <strong>Azure App Service Web Apps</strong> from the <strong>Authentication/Authorization</strong> blade in the Azure portal: select the Entra tenant so only users in that directory can access the app. You can set different authentication options per <strong>deployment slot</strong>.</p>
+            </div>
+          </div>
+          <div class="collapsible-block" data-block="identities-access">
+            <h3 id="identities-access" class="block-title">Access to Azure resources <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <div class="block-content">
+          <h4 id="identities-cloudshell">Azure Cloud Shell</h4>
+          <p>Browser-based shell to manage Azure from any device. Access via <strong>https://shell.azure.com</strong>, the Azure portal, or Learn code snippets. Authenticate with your Azure subscription; no local install required.</p>
+          <ul>
+            <li><strong>Sessions:</strong> A temporary VM is allocated per session with the latest PowerShell and Bash. Sessions end after <strong>20 minutes of inactivity</strong>. CloudDrive files persist across sessions.</li>
+            <li><strong>CloudDrive:</strong> Persist scripts and files; same files available from any device/session. You can also <strong>map an Azure Storage File Share</strong> (tied to a region) to work with share contents in Cloud Shell.</li>
+            <li><strong>Editor:</strong> Use the <strong>{ }</strong> icon in the browser or run <code class="cmd">code &lt;filename&gt;</code> (e.g. <code class="cmd">code temp.txt</code>). <code class="cmd">code</code> works in Classic mode (More → Settings → Go to Classic version).</li>
+          </ul>
+          <p><strong>Preinstalled tools (examples):</strong> Azure CLI, AzCopy, Azure Functions CLI, git, Docker/Kubectl/Helm, Terraform, Ansible, MySQL/PostgreSQL/sqlcmd, vim/nano/emacs, npm/pip, and more.</p>
+          <h4 id="identities-cloudshell-when">When to use Azure Cloud Shell</h4>
+          <p><strong>Use Cloud Shell when you:</strong></p>
+          <ul>
+            <li>Need a secure command-line session from any browser (no plug-ins or local install).</li>
+            <li>Want to persist files between sessions (CloudDrive).</li>
+            <li>Prefer Bash or PowerShell to manage Azure and need the built-in editor for scripts.</li>
+          </ul>
+          <p><strong>Do not use Cloud Shell when you:</strong></p>
+          <ul>
+            <li>Run long-running scripts or leave a session idle <strong>more than 20 minutes</strong>—session disconnects without warning and state is lost.</li>
+            <li>Need <strong>admin/sudo</strong> inside the shell (not supported).</li>
+            <li>Need to <strong>install custom tools</strong> not in the preconfigured environment—use a custom VM or container instead.</li>
+            <li>Need storage in <strong>multiple regions</strong>—Cloud Shell is tied to one region; you’d need to back up/sync content across regions yourself.</li>
+            <li>Need <strong>multiple concurrent sessions</strong>—only one Cloud Shell instance at a time (not suitable for parallel work across subscriptions/tenants).</li>
+          </ul>
+            </div>
+          </div>
+          <div class="collapsible-block" data-block="identities-governance">
+            <h3 id="identities-governance" class="block-title">Subscriptions and governance <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <div class="block-content">
+          <p class="placeholder">Content summary will be added from Microsoft Learn content.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="storage">
+          <h2>2. Implement and Manage Storage</h2>
+          <p class="weight">Exam weight: 15–20%</p>
+          <div class="collapsible-block" data-block="storage-access">
+            <h3 id="storage-access" class="block-title">Storage access <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <div class="block-content">
+          <p class="placeholder">Content summary will be added from Microsoft Learn content.</p>
+            </div>
+          </div>
+          <div class="collapsible-block" data-block="storage-accounts">
+            <h3 id="storage-accounts" class="block-title">Storage accounts <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <div class="block-content">
+          <p class="placeholder">Content summary will be added from Microsoft Learn content.</p>
+            </div>
+          </div>
+          <div class="collapsible-block" data-block="storage-blob-files">
+            <h3 id="storage-blob-files" class="block-title">Blob and Azure Files <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <div class="block-content">
+          <p class="placeholder">Content summary will be added from Microsoft Learn content.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="compute">
+          <h2>3. Deploy and Manage Azure Compute</h2>
+          <p class="weight">Exam weight: 20–25%</p>
+          <div class="collapsible-block" data-block="compute-arm">
+            <h3 id="compute-arm" class="block-title">ARM/Bicep automation <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <div class="block-content">
+          <h4>Infrastructure as code (IaC)</h4>
+          <p>Describe infrastructure in code; keep it with application code in a repo. Benefits: consistent configurations, better scalability, faster deployments, traceability.</p>
+          <h4>What is an ARM template?</h4>
+          <p><strong>ARM templates</strong> are <strong>JSON files</strong> that define infrastructure and configuration. They use <strong>declarative</strong> syntax (state what you want), not imperative (step-by-step commands). You declare resources and properties; Resource Manager deploys them in order (parallel when possible).</p>
+          <h4>Benefits of ARM templates</h4>
+          <ul>
+            <li><strong>Idempotent:</strong> Deploy the same template repeatedly and get the same resource state.</li>
+            <li>Resource Manager orchestrates order and validates the template before deployment.</li>
+            <li>Break into <strong>linked</strong> or <strong>nested</strong> templates for reuse; link at deploy time (linked templates can use a SAS token).</li>
+            <li>Deployment history in the Azure portal (parameters and outputs).</li>
+            <li>Integrate with CI/CD (e.g. Azure Pipelines, GitHub Actions).</li>
+          </ul>
+          <h4>ARM template file structure</h4>
+          <table>
+            <tr><th>Element</th><th>Description</th></tr>
+            <tr><td>schema</td><td>Required. JSON schema URL for the template.</td></tr>
+            <tr><td>contentVersion</td><td>Required. Template version (e.g. 1.0.0.0).</td></tr>
+            <tr><td>apiProfile</td><td>Optional. Collection of API versions for resource types.</td></tr>
+            <tr><td>parameters</td><td>Optional. Values provided at deploy time (file, CLI, or portal).</td></tr>
+            <tr><td>variables</td><td>Optional. Values to simplify expressions.</td></tr>
+            <tr><td>functions</td><td>Optional. User-defined functions for the template.</td></tr>
+            <tr><td>resources</td><td>Required. Resources to deploy or update (resource group or subscription).</td></tr>
+            <tr><td>outputs</td><td>Optional. Values returned after deployment.</td></tr>
+          </table>
+          <h4>Deploy an ARM template</h4>
+          <ul>
+            <li><strong>Local template:</strong> <code class="cmd">az login</code> → create or use a resource group (<code class="cmd">az group create --name &lt;name&gt; --location "&lt;location&gt;"</code>) → <code class="cmd">az deployment group create --name &lt;deploymentName&gt; --resource-group &lt;rg&gt; --template-file $templateFile</code>. Prefer <code class="cmd">az deployment group create</code> over the deprecated <code class="cmd">az group deployment create</code>.</li>
+            <li><strong>Linked templates:</strong> Main template triggers linked template deployment; store linked template and secure with SAS token if needed.</li>
+            <li><strong>CI/CD:</strong> Azure Pipelines or GitHub Actions for automated template deployment.</li>
+          </ul>
+          <h4>Adding resources to the template</h4>
+          <p>Resource type format: <strong>{resource-provider}/{resource-type}</strong> (e.g. <code>Microsoft.Storage/storageAccounts</code>). Set <code>type</code>, <code>apiVersion</code>, <code>name</code>, <code>location</code>, and resource-specific <code>properties</code>. Use Azure docs (e.g. “Define resources in ARM templates”) for each resource’s API version and properties.</p>
+          <h4>ARM template parameters</h4>
+          <p>Parameters customize deployment per environment (dev, test, prod). Use them for values that change: SKU, size, capacity, resource names. Max <strong>256 parameters</strong> per template. Parameter properties: <code>type</code>, <code>defaultValue</code>, <code>allowedValues</code>, <code>minValue</code>/<code>maxValue</code>, <code>minLength</code>/<code>maxLength</code>, <code>metadata.description</code>.</p>
+          <p><strong>Types:</strong> string, secureString, integers, boolean, object, secureObject, array.</p>
+          <p><strong>Best practices:</strong> Describe each parameter; use defaults when possible. Never hardcode usernames/passwords—use parameters with <code>secureString</code> (or <code>secureObject</code> for sensitive objects). Secure values are not readable after deployment.</p>
+          <p>Reference in the template: <code>[parameters('parameterName')]</code>. At deploy time: <code class="cmd">--parameters storageAccountType=Standard_LRS</code> (CLI) or use a parameter file.</p>
+          <h4>ARM template outputs</h4>
+          <p>Outputs return values after a successful deployment. Each output can have: <code>condition</code> (optional boolean; default true), <code>type</code>, <code>value</code> (expression), <code>copy</code> (optional, for multiple values). Use <code>[reference('resourceName')]</code> to get runtime state of a deployed resource (e.g. <code>[reference('learntemplatestorage123').primaryEndpoints]</code>).</p>
+          <p><strong>Redeploying:</strong> Templates are idempotent. Deploy again with no template changes → no environment changes. Change a parameter (or template) → only that change is applied. Resources are created if missing, updated only when something changed.</p>
+            </div>
+          </div>
+          <div class="collapsible-block" data-block="compute-vms">
+            <h3 id="compute-vms" class="block-title">Virtual machines <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <div class="block-content">
+          <p class="placeholder">Content summary will be added from Microsoft Learn content.</p>
+            </div>
+          </div>
+          <div class="collapsible-block" data-block="compute-containers">
+            <h3 id="compute-containers" class="block-title">Containers <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <div class="block-content">
+          <p class="placeholder">Content summary will be added from Microsoft Learn content.</p>
+            </div>
+          </div>
+          <div class="collapsible-block" data-block="compute-appservice">
+            <h3 id="compute-appservice" class="block-title">App Service <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <div class="block-content">
+          <p class="placeholder">Content summary will be added from Microsoft Learn content.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="networking">
+          <h2>4. Implement and Manage Virtual Networking</h2>
+          <p class="weight">Exam weight: 15–20%</p>
+          <div class="collapsible-block" data-block="networking-vnets">
+            <h3 id="networking-vnets" class="block-title">Virtual networks <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <div class="block-content">
+          <p class="placeholder">Content summary will be added from Microsoft Learn content.</p>
+            </div>
+          </div>
+          <div class="collapsible-block" data-block="networking-secure">
+            <h3 id="networking-secure" class="block-title">Secure access <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <div class="block-content">
+          <p class="placeholder">Content summary will be added from Microsoft Learn content.</p>
+            </div>
+          </div>
+          <div class="collapsible-block" data-block="networking-dns-lb">
+            <h3 id="networking-dns-lb" class="block-title">Name resolution and load balancing <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <div class="block-content">
+          <p class="placeholder">Content summary will be added from Microsoft Learn content.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="monitor">
+          <h2>5. Monitor and Maintain Azure Resources</h2>
+          <p class="weight">Exam weight: 10–15%</p>
+          <div class="collapsible-block" data-block="monitor-resources">
+            <h3 id="monitor-resources" class="block-title">Monitoring <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <div class="block-content">
+          <p class="placeholder">Content summary will be added from Microsoft Learn content.</p>
+            </div>
+          </div>
+          <div class="collapsible-block" data-block="monitor-backup">
+            <h3 id="monitor-backup" class="block-title">Backup and recovery <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <div class="block-content">
+          <p class="placeholder">Content summary will be added from Microsoft Learn content.</p>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      var THEME_KEY = "az104-theme";
+      var themeToggle = document.getElementById("themeToggle");
+
+      function getTheme() {
+        return document.documentElement.getAttribute("data-theme") || "light";
+      }
+
+      function setTheme(theme) {
+        document.documentElement.setAttribute("data-theme", theme);
+        try { localStorage.setItem(THEME_KEY, theme); } catch (e) {}
+        themeToggle.setAttribute("aria-label", theme === "dark" ? "Switch to light mode" : "Switch to dark mode");
+        themeToggle.setAttribute("title", theme === "dark" ? "Switch to light mode" : "Switch to dark mode");
+        themeToggle.textContent = theme === "dark" ? "☀" : "🌙";
+      }
+
+      function initTheme() {
+        var saved = null;
+        try { saved = localStorage.getItem(THEME_KEY); } catch (e) {}
+        var theme = saved === "dark" || saved === "light" ? saved : "light";
+        setTheme(theme);
+      }
+
+      initTheme();
+      themeToggle.addEventListener("click", function() {
+        setTheme(getTheme() === "dark" ? "light" : "dark");
+      });
+
+      var sidebar = document.getElementById("sidebar");
+      var menuToggle = document.getElementById("menuToggle");
+      var overlay = document.getElementById("sidebarOverlay");
+
+      function openSidebar() {
+        sidebar.classList.add("open");
+        overlay.classList.add("visible");
+        overlay.setAttribute("aria-hidden", "false");
+        menuToggle.setAttribute("aria-label", "Close menu");
+      }
+
+      function closeSidebar() {
+        sidebar.classList.remove("open");
+        overlay.classList.remove("visible");
+        overlay.setAttribute("aria-hidden", "true");
+        menuToggle.setAttribute("aria-label", "Open menu");
+      }
+
+      menuToggle.addEventListener("click", function() {
+        if (sidebar.classList.contains("open")) {
+          closeSidebar();
+        } else {
+          openSidebar();
+        }
+      });
+
+      overlay.addEventListener("click", closeSidebar);
+
+      document.querySelectorAll(".sidebar a").forEach(function(link) {
+        link.addEventListener("click", function() {
+          if (window.innerWidth <= 768) {
+            closeSidebar();
+          }
+        });
+      });
+
+      var domains = document.querySelectorAll(".domain");
+      domains.forEach(function(domain) {
+        var domainLink = domain.querySelector(".domain-link");
+        domainLink.addEventListener("click", function() {
+          if (window.innerWidth > 768) {
+            domain.classList.toggle("expanded");
+          }
+        });
+      });
+
+      var blocks = document.querySelectorAll(".collapsible-block");
+      function toggleBlock(block) {
+        block.classList.toggle("collapsed");
+        var btn = block.querySelector(".block-toggle");
+        if (btn) btn.setAttribute("aria-label", block.classList.contains("collapsed") ? "Expand section" : "Collapse section");
+      }
+      blocks.forEach(function(block) {
+        var title = block.querySelector(".block-title");
+        var toggleBtn = block.querySelector(".block-toggle");
+        if (title) {
+          title.addEventListener("click", function(e) {
+            if (e.target !== toggleBtn) toggleBlock(block);
+          });
+        }
+        if (toggleBtn) toggleBtn.addEventListener("click", function(e) { e.stopPropagation(); toggleBlock(block); });
+      });
+      document.getElementById("foldAll").addEventListener("click", function() {
+        blocks.forEach(function(block) { block.classList.add("collapsed"); });
+        document.querySelectorAll(".block-toggle").forEach(function(btn) { btn.setAttribute("aria-label", "Expand section"); });
+      });
+      document.getElementById("unfoldAll").addEventListener("click", function() {
+        blocks.forEach(function(block) { block.classList.remove("collapsed"); });
+        document.querySelectorAll(".block-toggle").forEach(function(btn) { btn.setAttribute("aria-label", "Collapse section"); });
+      });
+    })();
+  </script>
+</body>
+</html>
