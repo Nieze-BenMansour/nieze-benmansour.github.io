@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AZ-104 Study Guide</title>
+  <title>AZ104 Study Guide</title>
   <script>
     (function() {
       try {
@@ -72,44 +72,121 @@
 
     /* Layout */
     .layout {
-      display: flex;
+      display: block;
       min-height: 100vh;
     }
 
-    /* Sidebar */
-    .sidebar {
-      position: fixed;
-      left: 0;
+    /* Top navigation */
+    .top-nav {
+      position: sticky;
       top: 0;
-      bottom: 0;
-      width: var(--sidebar-width);
-      background: var(--nav-bg);
-      border-right: 1px solid var(--border);
-      overflow-y: auto;
       z-index: 100;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      padding: 0.75rem 1.5rem;
+      background: var(--nav-bg);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
     }
 
-    .sidebar-header {
+    .top-nav .site-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+      margin-right: 1rem;
+    }
+
+    .top-nav .site-title:hover {
+      color: var(--accent);
+    }
+
+    .top-nav .nav-links {
       display: flex;
       align-items: center;
       flex-wrap: wrap;
-      gap: 0.5rem;
-      padding: 1rem 1.25rem;
-      font-weight: 700;
-      font-size: 1.1rem;
-      border-bottom: 1px solid var(--border);
-      background: var(--nav-bg);
+      gap: 0.25rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
     }
 
-    .sidebar-header a {
+    .top-nav .nav-links a {
+      display: block;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.95rem;
       color: var(--text);
       text-decoration: none;
+      border-radius: 6px;
+      transition: background 0.15s ease, color 0.15s ease;
     }
 
-    .sidebar-header .title-link {
-      flex: 1;
-      min-width: 0;
+    .top-nav .nav-links a:hover {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .top-nav .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .top-nav .nav-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .top-nav .back-link {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .top-nav .back-link:hover {
+      color: var(--accent);
+    }
+
+    /* Sidebar - hidden, only used for mobile menu content */
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    /* Hamburger - mobile only */
+    .menu-toggle {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--nav-bg);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 1.25rem;
+    }
+
+    .menu-toggle:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
     }
 
     .theme-toggle {
@@ -137,118 +214,10 @@
       outline-offset: 2px;
     }
 
-    nav ul {
-      list-style: none;
-      margin: 0;
-      padding: 0.5rem 0;
-    }
-
-    nav > ul > li {
-      border-bottom: 1px solid var(--border);
-    }
-
-    nav a {
-      display: block;
-      padding: 0.6rem 1.25rem;
-      color: var(--text);
-      text-decoration: none;
-      transition: background 0.15s ease, color 0.15s ease;
-    }
-
-    nav a:hover {
-      background: var(--bg);
-      color: var(--accent);
-    }
-
-    nav .domain-link {
-      font-weight: 600;
-      padding: 0.75rem 1.25rem;
-    }
-
-    nav .domain-link::before {
-      content: "▸ ";
-      font-size: 0.75em;
-      transition: transform 0.2s ease;
-    }
-
-    nav .domain.expanded > .domain-link::before {
-      transform: rotate(90deg);
-    }
-
-    nav .sub-nav {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.25s ease;
-      background: var(--bg);
-    }
-
-    nav .domain.expanded .sub-nav {
-      max-height: 800px;
-    }
-
-    nav .sub-nav a {
-      padding-left: 2rem;
-      font-size: 0.95rem;
-      font-weight: 400;
-    }
-
-    nav .sub-sub-nav {
-      list-style: none;
-      margin: 0;
-      padding: 0 0 0.25rem 0;
-      padding-left: 1rem;
-    }
-
-    nav .sub-sub-nav a {
-      padding: 0.35rem 1.25rem 0.35rem 2rem;
-      font-size: 0.875rem;
-      color: var(--muted);
-    }
-
-    nav .sub-sub-nav a:hover {
-      color: var(--accent);
-    }
-
-    /* Hamburger (mobile) */
-    .menu-toggle {
-      display: none;
-      position: fixed;
-      top: 0.75rem;
-      left: 0.75rem;
-      z-index: 101;
-      width: 44px;
-      height: 44px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: var(--nav-bg);
-      cursor: pointer;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.25rem;
-    }
-
-    .menu-toggle:focus {
-      outline: 2px solid var(--accent);
-    }
-
-    .sidebar-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.4);
-      z-index: 99;
-    }
-
-    .sidebar-overlay.visible {
-      display: block;
-    }
-
     /* Main content */
     .main-wrap {
-      flex: 1;
-      margin-left: var(--sidebar-width);
       min-height: 100vh;
-      padding: 2rem 2.5rem 3rem;
+      padding: 2rem 1.5rem 3rem;
     }
 
     main {
@@ -447,18 +416,27 @@
         display: flex;
       }
 
-      .sidebar {
-        transform: translateX(-100%);
+      .top-nav .nav-wrap {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        padding-top: 0.5rem;
+        border-top: 1px solid var(--border);
+        margin-top: 0.25rem;
       }
 
-      .sidebar.open {
-        transform: translateX(0);
-        box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+      .top-nav.nav-open .nav-wrap {
+        display: flex;
+      }
+
+      .top-nav .nav-links {
+        flex-direction: column;
+        padding: 0;
       }
 
       .main-wrap {
-        margin-left: 0;
-        padding: 4rem 1.25rem 2rem;
+        padding: 1.25rem 1rem 2rem;
       }
     }
 
@@ -467,8 +445,7 @@
       .menu-toggle,
       .theme-toggle,
       .fold-unfold,
-      .sidebar-overlay,
-      .sidebar {
+      .top-nav {
         display: none !important;
       }
 
@@ -477,7 +454,6 @@
       }
 
       .main-wrap {
-        margin-left: 0;
         padding: 0;
       }
 
@@ -504,76 +480,25 @@
   </style>
 </head>
 <body>
-  <button type="button" class="menu-toggle" id="menuToggle" aria-label="Open menu">☰</button>
-  <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
-
-  <div class="layout">
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-header">
-        <a href="./" class="title-link">AZ-104 Study Guide</a>
+  <header class="top-nav" id="topNav">
+    <a href="az104.html" class="site-title">AZ104 Study Guide</a>
+    <button type="button" class="menu-toggle" id="menuToggle" aria-label="Open menu">☰</button>
+    <div class="nav-wrap">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="back-link">← Back to portfolio</a></li>
+        <li><a href="#identities">1. Identities</a></li>
+        <li><a href="#storage">2. Storage</a></li>
+        <li><a href="#compute">3. Compute</a></li>
+        <li><a href="#networking">4. Networking</a></li>
+        <li><a href="#monitor">5. Monitor</a></li>
+      </ul>
+      <div class="nav-right">
         <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" title="Toggle dark/light mode">☀</button>
       </div>
-      <nav>
-        <ul>
-          <li class="domain" data-domain="identities">
-            <a href="#identities" class="domain-link">1. Manage Azure Identities and Governance</a>
-            <ul class="sub-nav">
-              <li class="has-children">
-                <a href="#identities-users">Users and groups</a>
-                <ul class="sub-sub-nav">
-                  <li><a href="#identities-entra-overview">Entra ID overview</a></li>
-                  <li><a href="#identities-tenants">Tenants</a></li>
-                  <li><a href="#identities-schema">Schema</a></li>
-                  <li><a href="#identities-entra-vs-ad">Entra vs AD DS</a></li>
-                  <li><a href="#identities-entra-cloud">Entra for cloud apps</a></li>
-                </ul>
-              </li>
-              <li class="has-children">
-                <a href="#identities-access">Access to Azure resources</a>
-                <ul class="sub-sub-nav">
-                  <li><a href="#identities-cloudshell">Azure Cloud Shell</a></li>
-                  <li><a href="#identities-cloudshell-when">When to use Cloud Shell</a></li>
-                </ul>
-              </li>
-              <li><a href="#identities-governance">Subscriptions and governance</a></li>
-            </ul>
-          </li>
-          <li class="domain" data-domain="storage">
-            <a href="#storage" class="domain-link">2. Implement and Manage Storage</a>
-            <ul class="sub-nav">
-              <li><a href="#storage-access">Storage access</a></li>
-              <li><a href="#storage-accounts">Storage accounts</a></li>
-              <li><a href="#storage-blob-files">Blob and Azure Files</a></li>
-            </ul>
-          </li>
-          <li class="domain" data-domain="compute">
-            <a href="#compute" class="domain-link">3. Deploy and Manage Azure Compute</a>
-            <ul class="sub-nav">
-              <li><a href="#compute-arm">ARM/Bicep automation</a></li>
-              <li><a href="#compute-vms">Virtual machines</a></li>
-              <li><a href="#compute-containers">Containers</a></li>
-              <li><a href="#compute-appservice">App Service</a></li>
-            </ul>
-          </li>
-          <li class="domain" data-domain="networking">
-            <a href="#networking" class="domain-link">4. Implement and Manage Virtual Networking</a>
-            <ul class="sub-nav">
-              <li><a href="#networking-vnets">Virtual networks</a></li>
-              <li><a href="#networking-secure">Secure access</a></li>
-              <li><a href="#networking-dns-lb">Name resolution and load balancing</a></li>
-            </ul>
-          </li>
-          <li class="domain" data-domain="monitor">
-            <a href="#monitor" class="domain-link">5. Monitor and Maintain Azure Resources</a>
-            <ul class="sub-nav">
-              <li><a href="#monitor-resources">Monitoring</a></li>
-              <li><a href="#monitor-backup">Backup and recovery</a></li>
-            </ul>
-          </li>
-        </ul>
-      </nav>
-    </aside>
+    </div>
+  </header>
 
+  <div class="layout">
     <div class="main-wrap">
       <main>
         <div class="fold-unfold">
@@ -804,48 +729,19 @@
         setTheme(getTheme() === "dark" ? "light" : "dark");
       });
 
-      var sidebar = document.getElementById("sidebar");
+      var topNav = document.getElementById("topNav");
       var menuToggle = document.getElementById("menuToggle");
-      var overlay = document.getElementById("sidebarOverlay");
-
-      function openSidebar() {
-        sidebar.classList.add("open");
-        overlay.classList.add("visible");
-        overlay.setAttribute("aria-hidden", "false");
-        menuToggle.setAttribute("aria-label", "Close menu");
-      }
-
-      function closeSidebar() {
-        sidebar.classList.remove("open");
-        overlay.classList.remove("visible");
-        overlay.setAttribute("aria-hidden", "true");
-        menuToggle.setAttribute("aria-label", "Open menu");
-      }
 
       menuToggle.addEventListener("click", function() {
-        if (sidebar.classList.contains("open")) {
-          closeSidebar();
-        } else {
-          openSidebar();
-        }
+        topNav.classList.toggle("nav-open");
+        menuToggle.setAttribute("aria-label", topNav.classList.contains("nav-open") ? "Close menu" : "Open menu");
       });
 
-      overlay.addEventListener("click", closeSidebar);
-
-      document.querySelectorAll(".sidebar a").forEach(function(link) {
+      document.querySelectorAll(".top-nav .nav-links a").forEach(function(link) {
         link.addEventListener("click", function() {
           if (window.innerWidth <= 768) {
-            closeSidebar();
-          }
-        });
-      });
-
-      var domains = document.querySelectorAll(".domain");
-      domains.forEach(function(domain) {
-        var domainLink = domain.querySelector(".domain-link");
-        domainLink.addEventListener("click", function() {
-          if (window.innerWidth > 768) {
-            domain.classList.toggle("expanded");
+            topNav.classList.remove("nav-open");
+            menuToggle.setAttribute("aria-label", "Open menu");
           }
         });
       });

@@ -22,7 +22,8 @@
   --background-color: #ffffff; /* Background color for the entire website, including individual sections */
   --default-color: #4e4e4e; /* Default color used for the majority of the text content across the entire website */
   --heading-color: #0a090f; /* Color for headings, subheadings and title throughout the website */
-  --accent-color: #0078ff; /* Accent color that represents your brand on the website. It's used for buttons, links, and other elements that need to stand out */
+  --accent-color: #2563eb; /* Modern accent blue - used for buttons, links, and standout elements */
+  --accent-secondary: #3b82f6; /* Lighter accent for gradients and hover states */
   --surface-color: #ffffff; /* The surface color is used as a background of boxed elements within sections, such as cards, icon boxes, or other elements that require a visual separation from the global background. */
   --contrast-color: #ffffff; /* Contrast color for text, ensuring readability against backgrounds of accent, heading, or default colors. */
 }
@@ -34,7 +35,7 @@
   --nav-mobile-background-color: #ffffff; /* Used as the background color for mobile navigation menu */
   --nav-dropdown-background-color: #ffffff; /* Used as the background color for dropdown items that appear when hovering over primary navigation items */
   --nav-dropdown-color: #212529; /* Used for navigation links of the dropdown items in the navigation menu. */
-  --nav-dropdown-hover-color: #0078ff; /* Similar to --nav-hover-color, this color is applied to dropdown navigation links when they are hovered over. */
+  --nav-dropdown-hover-color: #2563eb; /* Similar to --nav-hover-color, this color is applied to dropdown navigation links when they are hovered over. */
 }
 
 /* Color Presets - These classes override global colors when applied to any section or element, providing reuse of the sam color scheme. */
@@ -53,11 +54,11 @@
 }
 
 .accent-background {
-  --background-color: #0078ff;
+  --background-color: #2563eb;
   --default-color: #ffffff;
   --heading-color: #ffffff;
   --accent-color: #ffffff;
-  --surface-color: #3393ff;
+  --surface-color: #3b82f6;
   --contrast-color: #ffffff;
 }
 
@@ -94,6 +95,7 @@ h5,
 h6 {
   color: var(--heading-color);
   font-family: var(--heading-font);
+  letter-spacing: 0.02em;
 }
 
 /* PHP Email Form Messages
@@ -179,7 +181,15 @@ h6 {
 }
 
 .scrolled .header {
-  box-shadow: 0px 0 18px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(12px);
+}
+
+.header a:focus-visible,
+.navmenu a:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 3px;
 }
 
 /*--------------------------------------------------------------
@@ -232,7 +242,12 @@ h6 {
     font-size: 12px;
     line-height: 0;
     margin-left: 5px;
+    margin-right: 6px;
     transition: 0.3s;
+  }
+
+  .navmenu a i:first-child {
+    margin-left: 0;
   }
 
   .navmenu>ul>li>a:before {
@@ -614,7 +629,7 @@ section,
 .section {
   color: var(--default-color);
   background-color: var(--background-color);
-  padding: 60px 0;
+  padding: 80px 0;
   scroll-margin-top: 92px;
   overflow: clip;
 }
@@ -668,10 +683,41 @@ section,
   width: 100%;
   min-height: calc(100vh - 92px);
   position: relative;
-  padding: 60px 0;
+  padding: 80px 24px;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.hero .container {
+  position: relative;
+  z-index: 3;
+  max-width: 720px;
+}
+
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+  padding: 12px 28px;
+  background: var(--accent-color);
+  color: var(--contrast-color);
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 16px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.hero-cta:hover {
+  color: var(--contrast-color);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4);
+}
+
+.hero-cta:focus-visible {
+  outline: 2px solid var(--contrast-color);
+  outline-offset: 3px;
 }
 
 .hero img {
@@ -686,15 +732,10 @@ section,
 
 .hero:before {
   content: "";
-  background: color-mix(in srgb, var(--background-color), transparent 30%);
+  background: linear-gradient(180deg, rgba(6, 6, 6, 0.7) 0%, rgba(6, 6, 6, 0.4) 50%, rgba(6, 6, 6, 0.85) 100%);
   position: absolute;
   inset: 0;
   z-index: 2;
-}
-
-.hero .container {
-  position: relative;
-  z-index: 3;
 }
 
 .hero h2 {
@@ -728,8 +769,9 @@ section,
 --------------------------------------------------------------*/
 .about .container {
   background-color: var(--surface-color);
-  box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.1);
-  padding: 30px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  padding: 40px;
+  border-radius: 12px;
 }
 
 .about .skills-content h5 {
@@ -861,12 +903,16 @@ section,
 --------------------------------------------------------------*/
 .services .service-item {
   background-color: var(--surface-color);
-  box-shadow: 0px 5px 90px 0px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06);
   padding: 60px 30px;
   transition: all ease-in-out 0.3s;
-  border-radius: 18px;
-  border-bottom: 5px solid var(--surface-color);
+  border-radius: 12px;
+  border-bottom: 4px solid var(--accent-color);
   height: 100%;
+}
+
+.services .service-item:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(37, 99, 235, 0.15);
 }
 
 .services .service-item .icon {
@@ -928,7 +974,7 @@ section,
 
 .stats:before {
   content: "";
-  background: color-mix(in srgb, var(--background-color), transparent 40%);
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.92) 0%, rgba(59, 130, 246, 0.88) 100%);
   position: absolute;
   inset: 0;
   z-index: 2;
@@ -1383,7 +1429,14 @@ section,
 }
 
 .contact .php-email-form button[type=submit]:hover {
-  background: color-mix(in srgb, var(--accent-color), transparent 20%);
+  background: color-mix(in srgb, var(--accent-color), transparent 15%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+}
+
+.contact .php-email-form button[type=submit]:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
 }
 
 /*--------------------------------------------------------------
