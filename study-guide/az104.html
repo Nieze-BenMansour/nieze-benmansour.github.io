@@ -530,6 +530,48 @@
           <p>For custom apps, you can enable <strong>Microsoft Entra authentication</strong> for <strong>Azure App Service Web Apps</strong> from the <strong>Authentication/Authorization</strong> blade in the Azure portal: select the Entra tenant so only users in that directory can access the app. You can set different authentication options per <strong>deployment slot</strong>.</p>
             </div>
           </div>
+          <div class="collapsible-block" data-block="identities-create-configure-manage">
+            <h3 id="identities-create-configure-manage" class="block-title">Create, configure, and manage identities <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <div class="block-content">
+          <h4 id="identities-create-manage-users">Create, configure, and manage users</h4>
+          <p>Every user who needs access to Azure resources needs an <strong>Azure user account</strong>. A user account holds the information needed to authenticate the user at sign-in. After authentication, Microsoft Entra ID issues an <strong>access token</strong> used to authorize the user and determine which resources they can access and what actions they can perform.</p>
+          <p>You manage user objects from the <strong>Microsoft Entra ID</strong> dashboard in the Azure portal. You work with <strong>one directory at a time</strong>; use the <strong>Directory + Subscription</strong> panel or the <strong>Switch directory</strong> button in the toolbar to change directories.</p>
+
+          <h4 id="identities-view-users">View users</h4>
+          <p>To view users: go to <strong>Identity</strong> → <strong>Users</strong> → <strong>All Users</strong>. The <strong>User Type</strong> column shows whether each user is a <strong>Member</strong> or a <strong>Guest</strong>.</p>
+
+          <h4 id="identities-user-types">User identity types</h4>
+          <p>Microsoft Entra ID defines users in three main ways:</p>
+          <ul>
+            <li><strong>Cloud identities</strong> — Exist only in Microsoft Entra ID. Examples: administrator accounts and users you manage directly. Source: <em>Microsoft Entra ID</em> or <em>External Microsoft Entra directory</em> (user lives in another Entra tenant but needs access to resources in this directory). When removed from the primary directory, these accounts are deleted.</li>
+            <li><strong>Directory-synchronized identities</strong> — Exist in on-premises Active Directory. <strong>Microsoft Entra Connect</strong> synchronizes them into Azure. Source: <em>Windows Server AD</em>.</li>
+            <li><strong>Guest users</strong> — Exist outside Azure. Examples: accounts from other cloud providers and Microsoft accounts (e.g. Xbox LIVE). Source: <em>Invited user</em>. Use for external vendors or contractors; remove the account when access is no longer needed.</li>
+          </ul>
+
+          <h4 id="identities-create-manage-groups">Create, configure, and manage groups</h4>
+          <p>A <strong>Microsoft Entra group</strong> organizes users and simplifies permission management. Resource owners (or directory owners) assign access permissions to the whole group instead of to each user. Groups define a security boundary; you add or remove users to grant or deny access with minimal effort. Entra ID also supports <strong>rule-based membership</strong> (e.g. by department or job title).</p>
+
+          <h4 id="identities-group-types">Group types</h4>
+          <p>Microsoft Entra ID supports two group types:</p>
+          <ul>
+            <li><strong>Security groups</strong> — Most common. Used to manage member and computer access to shared resources. Create a security group for a specific policy and assign permissions to all members at once instead of per user. Requires a Microsoft Entra administrator.</li>
+            <li><strong>Microsoft 365 groups</strong> — Enable collaboration: shared mailbox, calendar, files, SharePoint site, etc. Can include people outside the organization. Available to both users and admins.</li>
+          </ul>
+
+          <h4 id="identities-view-groups">View available groups</h4>
+          <p>View all groups via <strong>Identity</strong> → <strong>Groups</strong> in the Microsoft Entra admin center. A new Entra ID deployment has no groups by default.</p>
+
+          <h4 id="identities-membership-type">Membership type</h4>
+          <p><strong>Membership type</strong> defines how members are added:</p>
+          <ul>
+            <li><strong>Assigned</strong> — Members are added and maintained manually.</li>
+            <li><strong>Dynamic</strong> — Members are added by rules (<strong>dynamic group</strong>). The group is still a security group or Microsoft 365 group; only membership is rule-based.</li>
+          </ul>
+
+          <h4 id="identities-dynamic-groups">Dynamic groups</h4>
+          <p>In a <strong>dynamic group</strong>, membership is recalculated by a formula each time the group is used. Any directory object whose attributes match the group’s filter is included. If a user’s properties are changed to match the filter, they can inadvertently become a member. Well-defined, consistent account provisioning reduces this risk. Dynamic groups require Entra ID P1 or P2.</p>
+            </div>
+          </div>
           <div class="collapsible-block" data-block="identities-access">
             <h3 id="identities-access" class="block-title">Access to Azure resources <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
             <div class="block-content">
