@@ -706,6 +706,38 @@
             <li>Need storage in <strong>multiple regions</strong>—Cloud Shell is tied to one region; you’d need to back up/sync content across regions yourself.</li>
             <li>Need <strong>multiple concurrent sessions</strong>—only one Cloud Shell instance at a time (not suitable for parallel work across subscriptions/tenants).</li>
           </ul>
+
+          <h4 id="identities-rbac-what">What is Azure RBAC?</h4>
+          <p>Microsoft Entra ID and <strong>Azure RBAC</strong> work together so that when people leave the organization they lose access to cloud resources, and so you can balance team autonomy with central governance (e.g. teams manage VMs while you control networks). Each Azure subscription is associated with one Microsoft Entra directory; users, groups, and applications in that directory are used for SSO and access management. With <strong>Microsoft Entra Connect</strong>, on-prem AD accounts can manage Azure subscriptions; disabling an on-prem account removes access to connected Azure subscriptions.</p>
+          <p><strong>Azure RBAC</strong> is an <strong>authorization</strong> system built on <strong>Azure Resource Manager</strong> that provides fine-grained access management. You grant the access users need—e.g. one user manages VMs in a subscription, another manages SQL databases. You grant access by assigning an <strong>Azure role</strong> to users, groups, or applications at a <strong>scope</strong>: management group, subscription, resource group, or single resource. A role at a parent scope grants access to child scopes (e.g. access to a resource group grants access to all resources in it). A resource belongs to only one resource group; a resource group to only one subscription; a subscription to one Entra tenant.</p>
+
+          <h4 id="identities-rbac-scenarios">What can you do with Azure RBAC?</h4>
+          <ul>
+            <li>Allow one user to manage VMs and another to manage virtual networks in a subscription.</li>
+            <li>Allow a DBA group to manage SQL databases in a subscription.</li>
+            <li>Allow a user to manage all resources in a resource group (VMs, websites, subnets).</li>
+            <li>Allow an application to access all resources in a resource group.</li>
+          </ul>
+          <p>In the Azure portal, use the <strong>Access control (IAM)</strong> pane on management groups, subscriptions, resource groups, or resources to view who has access and to grant or remove access.</p>
+
+          <h4 id="identities-rbac-how">How does Azure RBAC work?</h4>
+          <p>Access is controlled by <strong>role assignments</strong>. A role assignment has three elements: <strong>security principal</strong> (who), <strong>role definition</strong> (what), and <strong>scope</strong> (where).</p>
+          <p><strong>1. Security principal (who)</strong> — The user, group, or application (service principal) you grant access to.</p>
+          <p><strong>2. Role definition (what)</strong> — A collection of permissions (often called a role). Lists operations the role can perform (read, write, delete). Can be broad (e.g. Owner) or specific (e.g. Virtual Machine Contributor).</p>
+          <p><strong>Built-in roles (examples):</strong></p>
+          <table>
+            <tr><th>Role</th><th>Description</th></tr>
+            <tr><td>Owner</td><td>Full access to all resources, including the right to delegate access to others.</td></tr>
+            <tr><td>Contributor</td><td>Create and manage all types of Azure resources; cannot grant access to others.</td></tr>
+            <tr><td>Reader</td><td>View existing Azure resources.</td></tr>
+            <tr><td>User Access Administrator</td><td>Manage user access to Azure resources.</td></tr>
+          </table>
+          <p>If built-in roles are insufficient, create <strong>custom roles</strong>.</p>
+          <p><strong>3. Scope (where)</strong> — The level at which access applies: management group, subscription, resource group, or resource. Scopes have a parent-child relationship; access at a parent scope is inherited by children. Example: Contributor at subscription scope applies to all resource groups and resources in that subscription.</p>
+          <p><strong>Role assignment</strong> — Binding a role to a security principal at a scope. Create an assignment to grant access; remove it to revoke access.</p>
+
+          <h4 id="identities-rbac-allow-model">Azure RBAC is an allow model</h4>
+          <p>Azure RBAC is <strong>allow-based</strong>: assignments grant permissions (read, write, delete). Multiple assignments are additive (e.g. read from one assignment + write from another = read and write). <strong>NotActions</strong> define operations to exclude from a role; <strong>effective permissions</strong> = Actions minus NotActions. For example, Contributor has <code>*</code> in Actions (all control-plane operations) and uses NotActions to exclude: deleting role assignments, creating role assignments, granting User Access Administrator at tenant scope, and blueprint artifact create/delete. The result is the effective Contributor permission set.</p>
             </div>
           </div>
           <div class="collapsible-block" data-block="identities-entra-p1-p2">
