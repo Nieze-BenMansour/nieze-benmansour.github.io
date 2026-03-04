@@ -257,7 +257,7 @@
     main h4 {
       font-size: 1.05rem;
       margin: 1.25rem 0 0.5rem;
-      color: var(--text);
+      color: var(--accent);
       font-weight: 600;
     }
 
@@ -508,6 +508,31 @@
         <section id="identities">
           <h2>1. Manage Azure Identities and Governance</h2>
           <p class="weight">Exam weight: 20–25%</p>
+          <div class="collapsible-block" data-block="identities-architecture">
+            <h3 id="identities-architecture" class="block-title">Describe the core architectural components of Azure <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <div class="block-content">
+          <h4 id="identities-azure-overview">What Azure offers</h4>
+          <p>Azure is a continually expanding set of cloud services to meet business challenges. You can build, manage, and deploy applications on a global network using your preferred tools and frameworks. Azure offers <strong>limitless innovation</strong> (intelligent apps with AI and advanced services), <strong>unified platform management</strong> (infrastructure, data, analytics, and AI in one place), and <strong>trust</strong> (security and compliance). Azure provides more than 100 services—from running existing apps on VMs to AI/ML (vision, hearing, speech), storage that scales, and solutions that require cloud scale. Many teams start by moving apps to VMs, but the cloud enables much more (e.g. dynamic storage, bots, mixed reality).</p>
+
+          <h4 id="identities-azure-accounts">Get started with Azure accounts</h4>
+          <p>To use Azure services you need an <strong>Azure subscription</strong>. Create an Azure account (e.g. on the Azure website or through a Microsoft representative or Cloud Solution Provider partner); a subscription is created for you. You can create additional subscriptions (e.g. one per department: dev, marketing, sales). Resources are created within subscriptions.</p>
+          <p><strong>Azure free account:</strong> Free access to popular Azure products for 12 months; a credit for the first 30 days; 25+ products always free. Sign up with phone, credit card (verification only—no charge until you upgrade), and a Microsoft or GitHub account. Good for exploring.</p>
+          <p><strong>Azure free student account:</strong> Free access to certain services for 12 months; credit for 12 months; free developer tools. For students; $100 credit; no credit card required. Many Learn exercises are <strong>bring your own subscription (BYOS)</strong>; complete cleanup steps to avoid unexpected costs.</p>
+
+          <h4 id="identities-physical-infrastructure">Azure physical infrastructure</h4>
+          <p>Azure’s physical infrastructure starts with <strong>datacenters</strong> (facilities with racks, power, cooling, networking). Datacenters are not directly accessible; they are grouped into <strong>Regions</strong> and <strong>Availability Zones</strong> for resiliency and reliability.</p>
+          <p><strong>Regions</strong> — A geographical area containing one or more datacenters networked with low latency. When you deploy a resource you typically choose a region. Some services or VM features are only in certain regions; some services are <strong>global</strong> (no region selection), e.g. Microsoft Entra ID, Azure Traffic Manager, Azure DNS.</p>
+          <p><strong>Availability Zones</strong> — Physically separate datacenters within a region. Each zone has independent power, cooling, and networking; if one zone fails, others continue. Connected by high-speed fiber. Minimum of <strong>three zones</strong> in all availability-zone–enabled regions; not all regions support them. Use for VMs, managed disks, load balancers, SQL Database. Categories: <strong>zonal</strong> (pinned to one zone), <strong>zone-redundant</strong> (replicated across zones by the platform), <strong>non-regional</strong> (available from geographies, resilient to zone and region outages).</p>
+          <p><strong>Region pairs</strong> — Most regions are paired with another in the same geography (e.g. US, Europe, Asia), at least 300 miles apart. Enables replication and reduces impact of disasters, outages, or network failures; one region can fail over to its pair. Not all services auto-replicate or fail over—customer must configure where required. Benefits: during a broad Azure outage, one region per pair is prioritized for restore; planned updates roll out to paired regions one at a time; data stays in the same geography (except Brazil South). Most pairs are bidirectional (e.g. West US and East US back each other up); some are one-direction (e.g. West India’s secondary is South India, but South India’s secondary is Central India; Brazil South’s secondary is South Central US).</p>
+          <p><strong>Sovereign regions</strong> — Isolated instances of Azure for compliance or legal reasons. Examples: <strong>US DoD Central, US Gov Virginia, US Gov Iowa</strong> (physical and logical isolation for U.S. government; screened personnel; extra compliance); <strong>China East, China North</strong> (via Microsoft–21Vianet partnership; Microsoft does not directly operate the datacenters).</p>
+
+          <h4 id="identities-management-infrastructure">Azure management infrastructure</h4>
+          <p>Management infrastructure includes <strong>resources</strong>, <strong>resource groups</strong>, <strong>subscriptions</strong>, and <strong>management groups</strong>.</p>
+          <p><strong>Resources and resource groups</strong> — A <strong>resource</strong> is the basic building block (VMs, virtual networks, databases, cognitive services, etc.). You must place each resource in a <strong>resource group</strong>. A resource can only be in one resource group at a time; some resources can be moved. Resource groups cannot be nested. Actions on a resource group apply to all resources in it (delete, access control). Use resource groups to organize by lifecycle (e.g. delete entire dev environment) or by access (e.g. assign access at resource group level).</p>
+          <p><strong>Subscriptions</strong> — A unit of <strong>management</strong>, <strong>billing</strong>, and <strong>scale</strong>. They organize resource groups and facilitate billing. A subscription gives authenticated, authorized access to Azure and allows provisioning. A subscription links to an Azure account (identity in Microsoft Entra ID or a trusted directory). An account can have multiple subscriptions. Two boundary types: <strong>billing boundary</strong> (how the account is billed; separate invoices per subscription); <strong>access control boundary</strong> (access policies at subscription level; e.g. different departments, different policies). Create additional subscriptions to separate environments (dev/test, compliance), organizational structure, or billing/cost tracking.</p>
+          <p><strong>Management groups</strong> — A scope above subscriptions. Organize subscriptions into <strong>management groups</strong> and apply governance (policies, RBAC). Subscriptions inherit conditions from their management group (as resource groups inherit from subscriptions). Enables enterprise-scale management. Use cases: apply a policy (e.g. limit VM regions) to a management group so all descendant subscriptions inherit it; assign RBAC at the management group once for access to multiple subscriptions. Limits: up to <strong>10,000</strong> management groups per directory; tree depth up to <strong>six levels</strong> (excluding root and subscription); each management group and subscription has only one parent.</p>
+            </div>
+          </div>
           <div class="collapsible-block" data-block="identities-users">
             <h3 id="identities-users" class="block-title">Users and groups <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
             <div class="block-content">
