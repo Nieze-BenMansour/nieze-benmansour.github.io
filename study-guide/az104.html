@@ -782,7 +782,50 @@
           <div class="collapsible-block" data-block="identities-governance">
             <h3 id="identities-governance" class="block-title">Subscriptions and governance <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
             <div class="block-content">
-          <p class="placeholder">Content summary will be added from Microsoft Learn content.</p>
+          <h4 id="identities-caf-governance">Cloud Adoption Framework and cloud governance</h4>
+          <p>The <strong>Microsoft Cloud Adoption Framework for Azure</strong> provides end-to-end guidance for cloud adoption. <strong>Cloud governance</strong> is the management of cloud usage—regulatory compliance, security, operations, cost, data, resource management, and AI. The Govern methodology has five steps: (1) <strong>Build a governance team</strong>; (2) <strong>Assess cloud risks</strong>; (3) <strong>Document cloud governance policies</strong>; (4) <strong>Enforce</strong> policies with automated tools and manual oversight; (5) <strong>Monitor</strong> usage and compliance. Iterate on steps 2–5 over time. Key considerations: business risk and tolerance, policy and compliance (risk → policy statements), and process (monitoring violations). Five core disciplines: <strong>Cost management</strong>, <strong>Security baseline</strong>, <strong>Resource consistency</strong>, <strong>Identity baseline</strong>, <strong>Deployment acceleration</strong>.</p>
+
+          <h4 id="identities-azure-policy-overview">Azure Policy as primary governance tool</h4>
+          <p><strong>Azure Policy</strong> is Azure’s primary governance tool. It enforces organizational standards and assesses compliance at scale across current and new resources. Benefits: centralized management, aggregated compliance dashboard, prevention of misconfigurations, bulk and automatic remediation, integration with Azure DevOps pipelines. Examples: allow only certain regions or VM sizes; enforce tags; require MFA; require diagnostic logs to Log Analytics; enforce geo-replication. Policy evaluates resources and can <strong>prevent</strong> noncompliant resources from being created or <strong>remediate</strong> existing resources (e.g. add missing tags). You can exempt specific resources from a policy. Design policy to balance control and stability with speed and productivity.</p>
+
+          <h4 id="identities-governance-hierarchy">Hierarchy for governance</h4>
+          <p>Four levels: <strong>Management groups</strong> → <strong>Subscriptions</strong> → <strong>Resource groups</strong> → <strong>Resources</strong>. Settings applied at a level apply to that scope and below; lower levels inherit. Policy assigned at a management group applies to all subscriptions (and their resource groups and resources) in that group.</p>
+
+          <h4 id="identities-arm-policy">Azure Resource Manager and Azure Policy</h4>
+          <p><strong>Control plane</strong> — Manages resources in the subscription. Azure Resource Manager (ARM) manages control plane operations; Azure Policy is integrated with ARM. Requests (portal, PowerShell, CLI, REST, SDKs) go through ARM (auth, RBAC, then Policy). <strong>Data plane</strong> — Direct interaction with resource data (e.g. storage blob, SQL query, Key Vault secret). Data plane is handled by the resource provider; Policy can enforce that resources are compliant. Policy supports <strong>Resource Provider modes</strong> for data-plane–aware policies (e.g. <code>Microsoft.Kubernetes.Data</code>, <code>Microsoft.KeyVault.Data</code>, <code>Microsoft.Network.Data</code>, <code>Microsoft.ManagedHSM.Data</code>, <code>Microsoft.DataFactory.Data</code>, <code>Microsoft.MachineLearningServices.v2.Data</code>). <strong>Greenfield</strong>: policy exists first; create/update request is evaluated by Policy (after RBAC). <strong>Brownfield</strong>: resources exist first; new policy is applied via compliance scan (automatic every 24 hours or manual <code class="cmd">az policy state trigger-scan</code>).</p>
+
+          <h4 id="identities-policy-resources">Azure Policy resources</h4>
+          <p><strong>Definitions</strong> — Describe compliance conditions and the effect when the condition is met. Stored at a definition location (management group or subscription); that location sets where the policy/initiative can be assigned. <strong>Scope</strong> = management groups, subscriptions, resource groups, resources.</p>
+          <p><strong>Initiatives (policy sets)</strong> — Group multiple policy definitions into one assignable unit. Simplify assignment and management; track compliance for a larger goal (e.g. regulatory framework). <strong>Built-in initiatives</strong> = collections from Azure Resource Providers (compliance frameworks, security best practices). <strong>Custom initiatives</strong> = policies you define; custom initiative = group of custom definitions. JSON used for initiative definition structure.</p>
+          <p><strong>Assignments</strong> — Assign a definition or initiative to a scope (management group, subscription, or resource group). Optional: resource selectors (gradual rollout by location/type), overrides (change effect at assignment), <strong>enforcementMode</strong> (Disabled = “what-if”: evaluate but do not enforce effect), excluded scopes, noncompliance messages, parameters. For <code>deployIfNotExists</code>, assign a managed identity (system or user-assigned) for remediation.</p>
+          <p><strong>Exemptions</strong> — Exempt a resource or hierarchy from evaluation. Exempt resources count toward compliance but are not evaluated (temporary waiver). Categories: <strong>Mitigated</strong> (intent met another way), <strong>Waiver</strong> (temporary acceptance of noncompliance).</p>
+          <p><strong>Attestations</strong> — For <strong>manual</strong>-effect policies: set compliance state of resources/scopes via attestations; one attestation per resource per manual policy assignment.</p>
+          <p><strong>Remediations</strong> — Bring noncompliant resources into compliance for <code>modify</code> or <code>deployIfNotExists</code> assignments. Remediation task runs the fix; new/updated resources matching <code>deployIfNotExists</code>/<code>modify</code> can be auto-remediated.</p>
+
+          <h4 id="identities-policy-definitions">Azure Policy definitions (anatomy)</h4>
+          <p>Policy = <strong>condition</strong> (if) + <strong>effect</strong> (then). Written in JSON. Key elements: <code>displayName</code>, <code>description</code>, <code>policyType</code> (BuiltIn, Custom, Static), <code>mode</code> (e.g. Indexed for ARM; Resource Provider modes for data-plane policies), <code>parameters</code>, <code>policyRule</code> (<code>if</code> + <code>then</code>).</p>
+          <p><strong>Logical operators in if:</strong> <code>not</code>, <code>allOf</code> (and), <code>anyOf</code> (or); can be nested. <strong>Conditions</strong> use <code>field</code>, <code>value</code>, or <code>count</code> with operators (equals, notEquals, in, notIn, containsKey, less, greater, exists, etc.). <strong>Policy functions</strong> (e.g. <code>addDays</code>, <code>field</code>, <code>requestContext().apiVersion</code>, <code>policy()</code>, <code>ipRangeContains</code>, <code>current()</code> in count) add logic.</p>
+          <table>
+            <tr><th>Effect</th><th>Description</th></tr>
+            <tr><td>deny</td><td>Block noncompliant request (synchronous).</td></tr>
+            <tr><td>modify</td><td>Add/update/remove properties or tags (synchronous).</td></tr>
+            <tr><td>append</td><td>Add fields (synchronous; mostly superseded by modify).</td></tr>
+            <tr><td>audit</td><td>Log warning in activity log; do not block (asynchronous).</td></tr>
+            <tr><td>auditIfNotExists</td><td>Audit when related resource does not exist (asynchronous).</td></tr>
+            <tr><td>deployIfNotExists</td><td>Run template deployment when condition met (asynchronous).</td></tr>
+            <tr><td>manual</td><td>Compliance set via attestations.</td></tr>
+            <tr><td>disabled</td><td>Deactivate policy; assignment not active.</td></tr>
+          </table>
+
+          <h4 id="identities-policy-evaluation">Evaluation and compliance</h4>
+          <p><strong>Triggers:</strong> New or updated assignment; resource deployed/updated; subscription moved in hierarchy; exemption created/updated/deleted; machine configuration provider update; on-demand scan.</p>
+          <p><strong>Timing:</strong> Full compliance scan runs automatically every <strong>24 hours</strong>. Manual scan: <code class="cmd">az policy state trigger-scan</code>. New assignment can take up to ~30 minutes to apply (ARM cache); sign out/in to refresh. Scan duration depends on definition complexity, number of policies, scope size, and system load (scans are low priority).</p>
+          <p><strong>Compliance states:</strong> Compliant, Non-compliant, Error, Conflicting, Protected (denyAction), Exempted, Unknown (manual). Rank order determines overall state. Compliance % = (Compliant + Exempt + Unknown) / total resources.</p>
+          <p><strong>enforcementMode</strong> (assignment property): <strong>Enabled</strong> (default) = effect enforced; <strong>DoNotEnforce</strong> = evaluate but do not enforce (what-if), no activity log for effect—remediation tasks still allowed for deployIfNotExists. Use to test before enabling.</p>
+
+          <h4 id="identities-policy-safe-deployment">Safe deployment and reacting to state changes</h4>
+          <p><strong>Best practices:</strong> (1) Assign new policies with <strong>enforcementMode Disabled</strong> first; check compliance and impact, then enable. (2) Deploy in <strong>rings</strong> (e.g. test → dev → production subsets) to limit impact. Treat policy as code (source control, test changes).</p>
+          <p><strong>Reacting to state changes:</strong> Azure Policy events (e.g. compliance change) are published to <strong>Azure Event Grid</strong>. Subscribe and route to handlers (Azure Functions, Logic Apps, webhook, custom HTTP). Event Grid handles retry and dead-letter delivery.</p>
             </div>
           </div>
         </section>
