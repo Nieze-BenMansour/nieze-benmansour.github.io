@@ -548,6 +548,12 @@
             <li><strong>Guest users</strong> — Exist outside Azure. Examples: accounts from other cloud providers and Microsoft accounts (e.g. Xbox LIVE). Source: <em>Invited user</em>. Use for external vendors or contractors; remove the account when access is no longer needed.</li>
           </ul>
 
+          <h4 id="identities-manage-external-users">Manage external users</h4>
+          <p>In the exam and Microsoft Learn, <strong>external users</strong> are typically <strong>guest users</strong> (B2B collaboration): users from another organization or identity provider who need access to your apps and resources. Manage them via <strong>Identity</strong> → <strong>Users</strong> → <strong>All users</strong> (filter by User type = Guest) or <strong>External Identities</strong> → <strong>All external users</strong> in the Microsoft Entra admin center. Invite guests via email; they redeem the invitation and sign in with their own credentials. Remove or revoke guest access when it is no longer needed to keep access accurate and auditable.</p>
+
+          <h4 id="identities-sspr">Configure self-service password reset (SSPR)</h4>
+          <p><strong>Self-service password reset (SSPR)</strong> lets users reset or change their password without involving an administrator. Configure it in the Microsoft Entra admin center under <strong>Identity</strong> → <strong>Protection</strong> → <strong>Password reset</strong> (or <strong>Authentication methods</strong> / <strong>Password reset</strong> in the Entra portal). You can enable SSPR for selected users or all users, require registration of authentication methods (e.g. mobile phone, email), and align with on-premises password policy when using <strong>password writeback</strong> (requires Entra ID P1 or P2). SSPR is separate from admin-initiated password reset.</p>
+
           <h4 id="identities-create-manage-groups">Create, configure, and manage groups</h4>
           <p>A <strong>Microsoft Entra group</strong> organizes users and simplifies permission management. Resource owners (or directory owners) assign access permissions to the whole group instead of to each user. Groups define a security boundary; you add or remove users to grant or deny access with minimal effort. Entra ID also supports <strong>rule-based membership</strong> (e.g. by department or job title).</p>
 
@@ -570,6 +576,83 @@
 
           <h4 id="identities-dynamic-groups">Dynamic groups</h4>
           <p>In a <strong>dynamic group</strong>, membership is recalculated by a formula each time the group is used. Any directory object whose attributes match the group’s filter is included. If a user’s properties are changed to match the filter, they can inadvertently become a member. Well-defined, consistent account provisioning reduces this risk. Dynamic groups require Entra ID P1 or P2.</p>
+
+          <h4 id="identities-device-registration">Configure and manage device registration</h4>
+          <p>IT must balance user productivity (any device, anywhere) with protecting organizational assets. Microsoft Entra ID provides <strong>device identity</strong> so you can manage and secure access; tools like <strong>Microsoft Intune</strong> build on that identity for compliance and configuration. Entra ID enables SSO to devices, apps, and services.</p>
+
+          <p><strong>Microsoft Entra registered devices</strong> — For <strong>BYOD and mobile</strong>. The device is registered to Entra ID; the user signs in with a local/personal account and attaches an organizational account for work resources. No organizational sign-in to the device itself. Use <strong>Conditional Access</strong> and <strong>MDM</strong> (e.g. Intune) to require compliant devices. Registration can happen when accessing a work app for the first time or via Windows Settings. Typical scenario: user accesses email and HR tools from a home PC; after registering the device and meeting Intune compliance, Conditional Access grants access.</p>
+
+          <table>
+            <tr><th>Aspect</th><th>Entra registered</th><th>Entra joined</th><th>Hybrid Entra joined</th></tr>
+            <tr><td>Definition</td><td>Registered to Entra ID; no org account required to sign in to device</td><td>Joined only to Entra ID; org account required to sign in</td><td>Joined to on-prem AD and registered with Entra ID</td></tr>
+            <tr><td>Audience</td><td>BYOD, mobile</td><td>Cloud-only or hybrid orgs</td><td>Hybrid orgs with existing on-prem AD</td></tr>
+            <tr><td>Ownership</td><td>User or org</td><td>Organization</td><td>Organization</td></tr>
+            <tr><td>OS</td><td>Windows 10/11, iOS, Android, macOS</td><td>Windows 10/11 (not Home)</td><td>Windows 7/8.1/10/11, Server 2008 R2–2019</td></tr>
+            <tr><td>Management</td><td>MDM (e.g. Intune)</td><td>MDM or Configuration Manager (co-management)</td><td>Group Policy, Configuration Manager, or co-management with Intune</td></tr>
+            <tr><td>Key capabilities</td><td>SSO to cloud resources, Conditional Access</td><td>SSO cloud + on-prem, Conditional Access, self-service password reset, Windows Hello PIN reset</td><td>SSO cloud + on-prem, Conditional Access, self-service password reset, Windows Hello for Business</td></tr>
+          </table>
+
+          <p><strong>Microsoft Entra joined devices</strong> — For <strong>cloud-first or cloud-only</strong> organizations. Users sign in to the device with an organizational Entra account. Enables SSO to cloud and on-premises resources (when on the org network). Join via <strong>OOBE</strong>, <strong>bulk enrollment</strong>, or <strong>Windows Autopilot</strong>. Use when: transitioning to cloud + Intune, managing tablets/phones, users mainly need Microsoft 365/SaaS, managing seasonal workers/contractors/students in Entra, or remote branches with limited on-prem infrastructure. Not available on Windows 10/11 Home.</p>
+
+          <p><strong>Hybrid Microsoft Entra joined devices</strong> — For orgs with <strong>on-premises AD</strong> that also want Entra benefits. Devices are domain-joined to AD and registered with Entra ID. Use when: you have Win32 apps that need AD machine auth, you rely on Group Policy, you use existing imaging, or you must support Windows 7/8.1. Managed via Group Policy and/or Configuration Manager (standalone or co-management with Intune).</p>
+
+          <p><strong>Device writeback</strong> — In hybrid setups with <strong>Microsoft Entra Connect</strong>, devices exist in Entra ID; on-prem AD has no visibility by default. <strong>Device writeback</strong> copies Entra-registered device objects into the on-prem AD container <strong>Registered Devices</strong>. Use it when: you need on-prem conditional access (e.g. an app behind ADFS that checks device identity via claim rules), or when using <strong>Windows Hello for Business</strong> in hybrid or federated scenarios (WHFB requires device writeback).</p>
+
+          <h4 id="identities-manage-licenses">Manage licenses</h4>
+          <p>Microsoft paid cloud services (Microsoft 365, Enterprise Mobility + Security, Dynamics 365, etc.) require <strong>user-level licenses</strong>. Microsoft Entra ID stores license assignment state. Licenses are managed via management portals (Office or Azure) or PowerShell. Previously, licenses could only be assigned per user, which made large-scale changes (e.g. department moves, joiners/leavers) cumbersome and often required custom PowerShell scripts.</p>
+
+          <p><strong>Group-based licensing</strong> — Assign one or more product licenses to a <strong>group</strong>; Entra ID assigns licenses to all members, adds licenses when users join the group, and removes them when they leave. This reduces or eliminates per-user license automation via PowerShell.</p>
+
+          <p><strong>License requirements for group-based licensing:</strong></p>
+          <ul>
+            <li>Paid or trial <strong>Microsoft Entra ID Premium P1</strong> or greater, or <strong>Office 365 Enterprise E3</strong> or greater.</li>
+            <li>You must have <strong>enough licenses for every unique member</strong> of any group that has licenses assigned. You don’t have to assign each member individually, but the tenant must have at least one license per unique member (e.g. 1,000 members in licensed groups → 1,000 licenses required).</li>
+          </ul>
+
+          <p><strong>Features:</strong></p>
+          <ul>
+            <li>Licenses can be assigned to any <strong>security group</strong> (synced from on-prem via Entra Connect, cloud-only, or dynamic groups).</li>
+            <li>When assigning a product to a group, you can <strong>disable specific service plans</strong> (e.g. assign Microsoft 365 but disable Yammer until the org is ready).</li>
+            <li>Supported: all Microsoft 365 products, Enterprise Mobility + Security, Dynamics 365, and other user-level licensed Microsoft cloud services.</li>
+            <li>Group-based licensing is available through the <strong>Microsoft 365 admin center</strong> (not Azure portal). License changes from membership updates are typically effective within minutes.</li>
+            <li>A user can be in <strong>multiple groups with licenses</strong> and can also have <strong>directly assigned</strong> licenses. The final state is the combination of all; duplicate product assignment consumes the license only once.</li>
+            <li>If Entra ID cannot assign a license (e.g. not enough licenses, conflicting services), administrators can see which users were not fully processed and take corrective action.</li>
+            <li><strong>Usage location</strong> must be set in the user profile before assignment—some services are not available in all locations. For group assignment, users without a usage location inherit the directory location; set usage location at user creation when you have users in multiple locations.</li>
+          </ul>
+
+          <h4 id="identities-custom-security-attributes">Create custom security attributes</h4>
+          <p><strong>Custom security attributes</strong> in Microsoft Entra ID are <strong>business-specific attributes</strong> (key-value pairs) you define and assign to Microsoft Entra objects. Use them to store information, categorize objects, or enforce <strong>fine-grained access control</strong> over specific Azure resources.</p>
+
+          <p><strong>Why use custom security attributes:</strong></p>
+          <ul>
+            <li>Extend user profiles (e.g. Employee Hire Date, Hourly Salary) and control visibility (e.g. only administrators can see Hourly Salary).</li>
+            <li>Categorize many applications for a filterable, auditable inventory.</li>
+            <li>Grant users access to Azure resources (e.g. Storage blobs) based on attribute values (e.g. project membership).</li>
+          </ul>
+
+          <p><strong>What you can do:</strong> Define tenant-specific attributes; add them on users, applications, Microsoft Entra resources, or Azure resources; manage and filter Entra objects with queries; use attributes for <strong>attribute-based access control</strong> (who can access what).</p>
+
+          <p><strong>Features:</strong></p>
+          <ul>
+            <li>Available <strong>tenant-wide</strong>; each attribute can include a description.</li>
+            <li>Data types: <strong>Boolean</strong>, <strong>integer</strong>, <strong>string</strong>.</li>
+            <li>Single value or <strong>multiple values</strong> per attribute.</li>
+            <li>Values can be <strong>free-form</strong> (user-defined) or <strong>predefined</strong> (allowed list).</li>
+            <li>Can be assigned to <strong>directory-synchronized users</strong> from on-premises Active Directory.</li>
+          </ul>
+
+          <h4 id="identities-automatic-user-creation">Explore automatic user creation</h4>
+          <p>Automatic user provisioning creates and updates user (and group) accounts in Microsoft Entra ID or target applications based on a source system—for example, an <strong>HCM (Human Capital Management)</strong> system. When employees are added or updated in HR, accounts and attributes are synchronized; when they leave or change role, accounts can be updated or deprovisioned. Keeping identity systems in sync with HR reduces stale accounts and access risk.</p>
+
+          <p><strong>SCIM (System for Cross-Domain Identity Management)</strong> is an open standard for automating the exchange of user identity information between identity domains and IT systems. Microsoft Entra ID uses <strong>SCIM 2.0</strong> for automatic provisioning: the <strong>Microsoft Entra Provisioning Service</strong> connects to the application’s <strong>SCIM endpoint</strong>, uses the SCIM user object schema and REST APIs, and automates provisioning and deprovisioning of users and groups. If users are automatically deprovisioned from Entra ID when removed from the HR system, you reduce the window for unauthorized access from orphaned accounts.</p>
+
+          <p><strong>Components:</strong></p>
+          <ul>
+            <li><strong>HCM system</strong> — Applications and technologies that support HR processes across the employee lifecycle (hire, role change, leave). Source of truth for who should have access.</li>
+            <li><strong>Microsoft Entra Provisioning Service</strong> — Uses SCIM 2.0; connects to the application’s SCIM endpoint and uses the SCIM user/group schema and REST APIs to create, update, and remove users and groups in the target system.</li>
+            <li><strong>Microsoft Entra ID</strong> — User repository; manages the lifecycle of identities and their entitlements. Can be the source (provisioning out to apps) or the target (provisioned from HCM).</li>
+            <li><strong>Target system</strong> — Application or system that exposes a SCIM endpoint and works with Microsoft Entra provisioning to enable automatic provisioning and deprovisioning of users and groups.</li>
+          </ul>
             </div>
           </div>
           <div class="collapsible-block" data-block="identities-access">
