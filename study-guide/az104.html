@@ -1050,6 +1050,33 @@
           <p><strong>Create peering:</strong> Use the Azure portal, PowerShell, or CLI. You need the <strong>Network Contributor</strong> role (or a custom role with peering permissions), and two VNets (the second is the <strong>remote network</strong>). Create the peering from the first VNet to the second; initially VMs cannot communicate until peering is established. <strong>Peering status:</strong> In the portal, check connectivity status. Peering is successful only when <strong>both</strong> VNets show <strong>Connected</strong>. For Resource Manager: status is <strong>Initiated</strong> when you create the initial peering from the first VNet, then <strong>Connected</strong> when the remote side accepts. Classic deployment also uses <strong>Updating</strong>.</p>
 
           <p><strong>Extend peering — nontransitive, hub-and-spoke, UDRs, service chaining:</strong> Peering is <strong>nontransitive</strong>. If A–B and B–C are peered, A and C do not automatically get connectivity; only the directly peered networks can communicate. To extend connectivity and transit, use: (1) <strong>Hub-and-spoke</strong> — Hub VNet hosts an NVA or VPN gateway; all spokes peer with the hub; traffic flows through the hub. (2) <strong>User-defined routes (UDRs)</strong> — The next hop in a UDR can be the IP of a VM in a peered VNet or a VPN gateway. (3) <strong>Service chaining</strong> — Direct traffic from one VNet to an NVA or gateway by configuring UDRs whose next hop is a VM in a peered VNet or a VNet gateway. This enables traffic to flow through central appliances in the hub.</p>
+
+          <h4 id="networking-routes">Manage and control traffic flow with routes</h4>
+          <p>You can enforce a security perimeter around VNet resources and control traffic in and out. Use <strong>network virtual appliances (NVAs)</strong> to inspect and filter traffic. <strong>Learning objectives:</strong> Identify VNet routing capabilities; configure routing; deploy a basic NVA; configure routes to send traffic through the NVA. Prerequisites: basic networking (subnets, IP addressing); familiarity with Azure VNets.</p>
+
+          <p><strong>Azure routing and system routes:</strong> Traffic is routed by default via <strong>system routes</strong> assigned to each subnet. You cannot create or delete system routes; you can override them with <strong>custom routes</strong>. Default system routes (examples):</p>
+          <table>
+            <tr><th>Address prefix</th><th>Next hop type</th></tr>
+            <tr><td>VNet address range(s)</td><td>Virtual network</td></tr>
+            <tr><td>0.0.0.0/0</td><td>Internet</td></tr>
+            <tr><td>10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 100.64.0.0/10</td><td>None (dropped; not routable outside subnet)</td></tr>
+          </table>
+          <p><strong>Next hop types:</strong> <strong>Virtual network</strong> — Traffic to VNet address ranges stays in the VNet. <strong>Internet</strong> — 0.0.0.0/0 sends unmatched traffic to the internet (override with a custom route to force through NVA or on-prem). <strong>None</strong> — Traffic is dropped. Additional system routes are created when you enable <strong>peering</strong>, <strong>service chaining</strong>, a <strong>virtual network gateway</strong>, or <strong>service endpoints</strong>.</p>
+
+          <p><strong>Custom routes — user-defined routes (UDRs):</strong> Override system routes to send traffic through firewalls or NVAs. Create a <strong>route table</strong>, add routes, associate the table to one or more subnets (a subnet has at most one route table). <strong>Next hop types for UDRs:</strong></p>
+          <table>
+            <tr><th>Next hop type</th><th>Use</th></tr>
+            <tr><td>Virtual appliance</td><td>NIC private IP (with IP forwarding enabled) or internal load balancer; traffic passes through NVA/firewall.</td></tr>
+            <tr><td>Virtual network gateway</td><td>Route to VPN gateway.</td></tr>
+            <tr><td>Virtual network</td><td>Override default VNet route.</td></tr>
+            <tr><td>Internet</td><td>Send prefix to internet.</td></tr>
+            <tr><td>None</td><td>Drop traffic to prefix.</td></tr>
+          </table>
+          <p>You cannot use <strong>VirtualNetworkServiceEndpoint</strong> as a UDR next hop. You can use a <strong>service tag</strong> as the address prefix so Microsoft manages the IP list. <strong>BGP</strong> — Exchange routes between on-premises and Azure VPN/ExpressRoute; BGP advertises on-prem routes to Azure and provides failover. <strong>Route selection:</strong> <strong>Longest prefix match</strong> wins (e.g. 10.0.0.0/24 over 10.0.0.0/16). If prefix is the same, priority is: <strong>User-defined</strong> → <strong>BGP</strong> → <strong>System</strong>. You cannot have two UDRs with the same address prefix.</p>
+
+          <p><strong>Network virtual appliance (NVA):</strong> A VM that acts as firewall, WAN optimizer, application-delivery controller, router, load balancer, IDS/IPS, or proxy. Deploy from Azure Marketplace (e.g. Cisco, Check Point, Barracuda) or use a Linux/Windows VM with IP forwarding. Place the NVA in a <strong>perimeter (DMZ) subnet</strong> or use <strong>microsegmentation</strong> (dedicated firewall subnets; all traffic routed through NVA for inspection at Layer 4 or 7). Enable <strong>IP forwarding</strong> on the NVA’s Azure NIC (<code class="cmd">az network nic update --ip-forwarding true</code>) and inside the OS (e.g. Linux <code class="cmd">sysctl -w net.ipv4.ip_forward=1</code>) so traffic not destined to the NVA is forwarded. Some NVAs use multiple NICs (management + traffic). Plan for <strong>high availability</strong> so NVA failure does not break connectivity.</p>
+
+          <p><strong>Example: route traffic through NVA:</strong> Create a route table; add a route for the private subnet (e.g. 10.0.1.0/24) with next hop type <strong>Virtual appliance</strong> and next hop IP = NVA’s private IP (e.g. 10.0.2.4). Associate the route table with the <strong>public</strong> subnet. Deploy the NVA in the DMZ subnet (e.g. dmzsubnet 10.0.2.0/24) and enable IP forwarding on its NIC and in the OS. Result: traffic from the public subnet to the private subnet goes through the NVA; traffic in the opposite direction can use default routes (direct) unless you add a UDR on the private subnet as well. Verify with <code class="cmd">traceroute</code> (public → private should show NVA as first hop).</p>
             </div>
           </div>
           <div class="collapsible-block" data-block="networking-secure">
