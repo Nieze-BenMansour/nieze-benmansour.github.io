@@ -1139,6 +1139,39 @@
 
           <h4 id="networking-dns-apex-alias">Zone apex and alias records</h4>
           <p>The <strong>apex domain</strong> (zone apex, root apex) is the domain’s top level (e.g. wideworldimporters.com). The <code>@</code> symbol often represents it in DNS records. CNAME is not supported at the zone apex for Traffic Manager or CDN; <strong>alias records</strong> are supported at the apex. Alias records let the apex reference Azure resources (Traffic Manager, CDN, public IP, front-door) and update automatically when the target’s IP changes—so you can point the apex to a load balancer without dangling records when the LB IP changes. Create an alias: add a record set with name blank (apex), type A (or AAAA/CNAME), <strong>Alias record set = Yes</strong>, Alias type = Azure resource, then select the resource (e.g. public IP or load balancer). Verify with nslookup or by opening the resource’s IP in a browser.</p>
+
+          <h4 id="networking-lb-intro">Introduction to Azure Load Balancer</h4>
+          <p><strong>Azure Load Balancer</strong> distributes inbound traffic across a set of VMs (or Virtual Machine Scale Set instances) in a <strong>back-end pool</strong>. You configure distribution with <strong>load-balancing rules</strong> and avoid sending traffic to failed nodes with <strong>health probes</strong>. It operates at <strong>Layer 4</strong> (OSI transport layer), like traditional hardware load balancers—suitable when migrating on-premises Layer 4 devices to Azure. <strong>Learning objectives:</strong> Learn what Load Balancer is and what it provides; determine if it meets your needs. Prerequisites: basic networking concepts.</p>
+
+          <h4 id="networking-lb-what">What is Azure Load Balancer?</h4>
+          <p>Load balancing distributes incoming traffic across multiple servers so a single server is not overwhelmed. Azure Load Balancer distributes traffic across Azure VMs or scale set instances and provides high availability and performance via rules and health probes.</p>
+          <p><strong>Public load balancer</strong> — Load balances <strong>internet traffic</strong> to your VMs. Maps the load balancer’s <strong>public IP and port</strong> to the <strong>private IP and port</strong> of back-end VMs. Can also provide <strong>outbound</strong> connections for VMs in the VNet. Use for web tiers facing the internet.</p>
+          <p><strong>Internal (private) load balancer</strong> — Uses a <strong>private IP</strong> at the front end; never exposed directly to the internet. Distributes traffic to resources inside the VNet or reachable via VPN/ExpressRoute. Use for: load balancing <strong>within a VNet</strong>; <strong>cross-premises</strong> (on-prem to VMs in the VNet); <strong>multi-tier apps</strong> (internet-facing tier to non–internet-facing back-end tiers); <strong>LOB applications</strong> in Azure (including on-prem servers in the pool). Both public and internal Load Balancers support inbound and outbound scenarios and scale to millions of TCP and UDP flows.</p>
+
+          <h4 id="networking-lb-how">How Azure Load Balancer works</h4>
+          <p>Load Balancer works at <strong>Layer 4</strong> (TCP/UDP; source/destination IP and port, protocol). Key components:</p>
+          <ul>
+            <li><strong>Front-end IP</strong> — Address clients connect to; can be public or private. Public IP → public load balancer; private IP → internal load balancer. Multiple front-end IPs supported (e.g. for multiple rules).</li>
+            <li><strong>Load balancer rules</strong> — Map a front-end IP and port to a set of back-end IPs and ports. Traffic is distributed using a <strong>five-tuple hash</strong>: source IP, source port, destination IP, destination port, protocol. <strong>Session affinity</strong> (persistence) keeps the same client on the same back-end instance. You can load balance multiple ports or IPs; for content-based (Layer 7) routing use <strong>Azure Application Gateway</strong>.</li>
+            <li><strong>Back-end pool</strong> — Group of VMs or scale set instances that receive traffic. Adding or removing instances triggers automatic reconfiguration.</li>
+            <li><strong>Health probes</strong> — Determine if an instance is healthy. Unhealthy instances stop receiving <strong>new</strong> connections; existing connections continue until the app ends the flow, idle timeout, or VM shuts down. Probe types: <strong>TCP</strong> (successful TCP session to probe port), <strong>HTTP</strong>, <strong>HTTPS</strong> (e.g. HTTP 200 within timeout). Configure port, interval, and unhealthy threshold.</li>
+            <li><strong>Session persistence</strong> — <em>None</em> (default): any healthy VM; <em>Client IP (2-tuple)</em>: same client IP → same instance; <em>Client IP and protocol (3-tuple)</em>: same client IP and protocol → same instance.</li>
+            <li><strong>High availability (HA) ports</strong> — Rule with <strong>protocol = All</strong> and <strong>port = 0</strong> on an internal <strong>Standard</strong> load balancer. Load balances all TCP and UDP flows on all ports; decision per flow (five-tuple). Useful for NVAs and when many ports must be load balanced.</li>
+            <li><strong>Inbound NAT rules</strong> — Forward traffic from the load balancer’s front-end to a specific VM’s port (e.g. public IP port → TCP 3389 on a VM for RDP).</li>
+            <li><strong>Outbound rules</strong> — Configure <strong>SNAT</strong> (Source NAT) so back-end instances can reach the internet or other public endpoints.</li>
+          </ul>
+
+          <h4 id="networking-lb-when">When to use and when not to use Azure Load Balancer</h4>
+          <p><strong>Use Load Balancer when:</strong> You need <strong>ultra-low latency</strong> and <strong>high performance</strong> at Layer 4; you are replacing on-premises Layer 4 hardware; you want health probes to avoid failed nodes and session persistence so a client sticks to one VM per session. Use <strong>public</strong> load balancers for web-tier traffic from the internet; <strong>internal</strong> load balancers between web tier and middle tier (e.g. data analysis). Use <strong>inbound NAT rules</strong> for RDP/SSH to specific VMs.</p>
+          <p><strong>Do not use Load Balancer when:</strong> A single VM handles low traffic and does not need a back-end pool.</p>
+          <p><strong>Alternatives:</strong></p>
+          <table>
+            <tr><th>Service</th><th>Use case</th></tr>
+            <tr><td>Azure Front Door</td><td>Global load balancing and site acceleration; Layer 7 (TLS offload, path-based routing, WAF, caching); multi-region web apps.</td></tr>
+            <tr><td>Azure Traffic Manager</td><td>DNS-based load balancing; optimal distribution across global regions; failover slower due to DNS caching/TTL.</td></tr>
+            <tr><td>Azure Application Gateway</td><td>ADC as a service; Layer 7 (TLS offload, URL routing); regional (not global).</td></tr>
+          </table>
+          <p><strong>Azure Load Balancer</strong> is a high-performance, ultra-low-latency <strong>Layer 4</strong> service (TCP/UDP, inbound and outbound), built for millions of requests per second and zone-redundant high availability. It does <strong>not</strong> provide web application firewall (WAF) functionality—use Front Door or Application Gateway for that.</p>
             </div>
           </div>
         </section>
