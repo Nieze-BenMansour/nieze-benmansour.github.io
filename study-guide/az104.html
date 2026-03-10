@@ -1028,6 +1028,28 @@
             <tr><td>Internal load balancer</td><td>Front-end configuration</td><td>Yes</td><td>Yes</td></tr>
             <tr><td>Application gateway</td><td>Front-end configuration</td><td>Yes</td><td>Yes</td></tr>
           </table>
+
+          <h4 id="networking-peering">Configure Azure Virtual Network peering</h4>
+          <p><strong>Azure Virtual Network peering</strong> connects virtual networks in the same or different regions and provides secure, private communication between resources. Use it when separate VNets need to talk without exposing services to the internet. <strong>Learning objectives:</strong> Identify use cases and features; configure VPN Gateway for transit; extend peering with hub-and-spoke, user-defined routes (UDRs), and service chaining. Prerequisites: basic cloud networking and VNets; familiarity with connectivity testing tools.</p>
+          <figure style="margin:1.5rem 0;">
+            <img src="images/az104-vnet-peering.png" alt="VNet peering in East US: CoreServicesVnet 10.0.0.0/16 with Perimeter and Core subnets and CoreServicesVM; ManufacturingVnet 172.16.0.0/16 with Manufacturing subnet and ManufacturingVM; peering between the two VNets; Tasks 1–6 for traffic and management." style="max-width:100%; height:auto; border:1px solid var(--border); border-radius:6px;">
+            <figcaption style="margin-top:0.5rem; font-size:0.9rem; color:var(--muted);">Regional VNet peering (az104-rg5): CoreServicesVnet and ManufacturingVnet in East US with distinct address spaces; direct private connectivity between VNets; Perimeter (jump box), Core, and Manufacturing subnets; Tasks 1–6 for internal traffic, internet access, and management.</figcaption>
+          </figure>
+          <p><strong>Types:</strong> <strong>Regional peering</strong> — Connects VNets in the same Azure region (same public cloud region, or same China, or same Azure Government region). <strong>Global peering</strong> — Connects VNets in different regions (any public or China regions; global peering between different Azure Government regions is not permitted). VNets can be peered across subscriptions and tenants. After peering, the two VNets behave as one for connectivity; they remain separate resources to manage.</p>
+          <table>
+            <tr><th>Benefit</th><th>Description</th></tr>
+            <tr><td>Private network connections</td><td>Traffic between peered VNets stays on the Microsoft backbone; no public internet, gateways, or encryption required.</td></tr>
+            <tr><td>Strong performance</td><td>Low-latency, high-bandwidth connection over Azure infrastructure.</td></tr>
+            <tr><td>Simplified communication</td><td>Resources in one VNet can communicate with resources in the peered VNet.</td></tr>
+            <tr><td>Seamless data transfer</td><td>Peering across subscriptions, deployment models, and regions.</td></tr>
+            <tr><td>No resource disruptions</td><td>No downtime when creating or after peering.</td></tr>
+          </table>
+
+          <p><strong>Gateway transit:</strong> When VNets are peered, you can use a <strong>VPN Gateway</strong> in one VNet (e.g. a hub) as a transit point. The other (spoke) VNet can <strong>use the remote gateway</strong> to reach on-premises (site-to-site VPN), another VNet (VNet-to-VNet), or clients (point-to-site). Gateway transit is supported for both regional and global peering. A VNet can have only one VPN gateway; with gateway transit, spoke VNets do not need their own gateway. In the portal, configure peering with options to allow/forward traffic (gateway transit). NSGs can still allow or block access between peered VNets or subnets.</p>
+
+          <p><strong>Create peering:</strong> Use the Azure portal, PowerShell, or CLI. You need the <strong>Network Contributor</strong> role (or a custom role with peering permissions), and two VNets (the second is the <strong>remote network</strong>). Create the peering from the first VNet to the second; initially VMs cannot communicate until peering is established. <strong>Peering status:</strong> In the portal, check connectivity status. Peering is successful only when <strong>both</strong> VNets show <strong>Connected</strong>. For Resource Manager: status is <strong>Initiated</strong> when you create the initial peering from the first VNet, then <strong>Connected</strong> when the remote side accepts. Classic deployment also uses <strong>Updating</strong>.</p>
+
+          <p><strong>Extend peering — nontransitive, hub-and-spoke, UDRs, service chaining:</strong> Peering is <strong>nontransitive</strong>. If A–B and B–C are peered, A and C do not automatically get connectivity; only the directly peered networks can communicate. To extend connectivity and transit, use: (1) <strong>Hub-and-spoke</strong> — Hub VNet hosts an NVA or VPN gateway; all spokes peer with the hub; traffic flows through the hub. (2) <strong>User-defined routes (UDRs)</strong> — The next hop in a UDR can be the IP of a VM in a peered VNet or a VPN gateway. (3) <strong>Service chaining</strong> — Direct traffic from one VNet to an NVA or gateway by configuring UDRs whose next hop is a VM in a peered VNet or a VNet gateway. This enables traffic to flow through central appliances in the hub.</p>
             </div>
           </div>
           <div class="collapsible-block" data-block="networking-secure">
