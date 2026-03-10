@@ -978,9 +978,52 @@
           <h2>4. Implement and Manage Virtual Networking</h2>
           <p class="weight">Exam weight: 15–20%</p>
           <div class="collapsible-block" data-block="networking-vnets">
-            <h3 id="networking-vnets" class="block-title">Virtual networks <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <h3 id="networking-vnets" class="block-title">Configure virtual networks <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
             <div class="block-content">
-          <p class="placeholder">Content summary will be added from Microsoft Learn content.</p>
+          <h4 id="networking-vnet-intro">Azure virtual networks overview</h4>
+          <p>Azure <strong>virtual networks (VNets)</strong> are the foundation for private networks in Azure. They allow Azure resources to communicate with each other, the internet, and on-premises networks securely. Use cases: create a dedicated private cloud-only network, extend your data center with secure connectivity, or enable hybrid cloud (connect cloud apps to on-premises systems).</p>
+          <p><strong>Learning objectives</strong> (from <a href="https://learn.microsoft.com/en-us/training/modules/configure-virtual-networks/" target="_blank" rel="noopener">Configure virtual networks</a>): Describe Azure VNet features and components; identify features and usage cases for subnets and subnetting; identify usage cases for private and public IP addresses; create a virtual network and assign an IP address. Prerequisites: basic knowledge of virtual networking and familiarity with IP address formats and subnetting.</p>
+
+          <h4 id="networking-plan-vnet">Plan virtual networks</h4>
+          <p><strong>Things to know:</strong> An Azure VNet is a <strong>logical isolation</strong> of Azure cloud resources. You can provision and manage <strong>VPNs</strong> in Azure. Each VNet has its own <strong>CIDR</strong> block and can be linked to other VNets and on-premises networks (hybrid or cross-premises) <strong>when CIDR blocks do not overlap</strong>. You control <strong>DNS server settings</strong> and <strong>subnet segmentation</strong> for the VNet.</p>
+          <table>
+            <tr><th>Scenario</th><th>Description</th></tr>
+            <tr><td>Dedicated private cloud-only VNet</td><td>No cross-premises. Services and VMs in the VNet communicate directly and securely in the cloud. Configure endpoints for resources that need internet.</td></tr>
+            <tr><td>Extend data center</td><td>Site-to-site VPNs with <strong>IPsec</strong> between your VPN gateway and Azure to scale datacenter capacity.</td></tr>
+            <tr><td>Hybrid cloud</td><td>Connect cloud apps to on-premises systems (e.g. mainframes, Unix).</td></tr>
+          </table>
+
+          <h4 id="networking-subnets">Create subnets</h4>
+          <p><strong>Subnets</strong> provide logical divisions within a VNet for security, performance, and management. Conditions: each subnet has a range of IP addresses <strong>within</strong> the VNet address space; the range must be <strong>unique</strong> and <strong>non-overlapping</strong> with other subnets; use <strong>CIDR</strong> notation. You can segment a VNet into one or more subnets in the Azure portal.</p>
+          <p><strong>Reserved addresses:</strong> Azure reserves <strong>five IP addresses</strong> per subnet. For 192.168.1.0/24: <strong>.0</strong> = network address; <strong>.1</strong> = default gateway; <strong>.2 and .3</strong> = Azure DNS; <strong>.255</strong> = broadcast. These cannot be assigned to resources.</p>
+          <p><strong>Things to consider:</strong> (1) <strong>Service requirements</strong> — Some services need a dedicated subnet (e.g. <strong>Azure VPN Gateway</strong> requires a gateway subnet); ensure enough unallocated space. (2) <strong>Network virtual appliances (NVAs)</strong> — By default Azure routes traffic between subnets; you can override to route via an NVA by placing resources in different subnets. (3) <strong>Network security groups (NSGs)</strong> — Zero or one NSG per subnet; rules allow or deny traffic. (4) <strong>Private Link</strong> — Private connectivity from the VNet to Azure PaaS, customer, or partner services; avoids public internet exposure.</p>
+
+          <h4 id="networking-create-vnet">Create virtual networks</h4>
+          <p>When creating a VNet: define the <strong>IP address space</strong> (use a range not already in use; can be on-prem or cloud, not both); define <strong>at least one subnet</strong>; each subnet range must be unique and non-overlapping within the VNet. In the Azure portal provide subscription, resource group, VNet name, and region. Check Azure networking documentation for current default limits.</p>
+
+          <h4 id="networking-plan-ip">Plan IP addressing</h4>
+          <p>Azure resources use IP addresses to communicate with other Azure resources, on-premises networks, and the internet. Two types: <strong>private</strong> (within VNet and on-premises via VPN or ExpressRoute) and <strong>public</strong> (internet and Azure public-facing services). IPs can be <strong>statically</strong> or <strong>dynamically</strong> assigned; you can use different subnets for static vs dynamic. <strong>Use static</strong> when: DNS resolution would need host record updates; IP-based security or firewall rules; TLS/SSL certs tied to IP; role-based VMs (e.g. domain controllers, DNS servers).</p>
+
+          <h4 id="networking-public-ip">Create and associate public IP addresses</h4>
+          <p>Create public IPs in the Azure portal (e.g. for a VM or load balancer). <strong>Settings:</strong> <em>IP version</em> — IPv4 can attach to NIC or load balancer; IPv6 only to load balancers; <em>SKU</em> — must match the load balancer SKU (Basic SKU public IPs were retired September 30, 2025; use Standard); <em>Tier</em> — match load balancer (Regional vs cross-region); <em>Assignment</em> — Static (assigned at creation, released when resource deleted). Public IPs are often used with load balancers.</p>
+          <p><strong>Association by resource type:</strong></p>
+          <table>
+            <tr><th>Resource</th><th>Configuration</th></tr>
+            <tr><td>Virtual machine</td><td>Network interface</td></tr>
+            <tr><td>VPN Gateway, ExpressRoute Gateway, NAT Gateway</td><td>Gateway IP configuration</td></tr>
+            <tr><td>Public Load Balancer, Application Gateway, Azure Firewall, Route Server, API Management</td><td>Front-end configuration</td></tr>
+            <tr><td>Bastion host</td><td>Public IP configuration</td></tr>
+          </table>
+          <p><strong>Standard SKU public IP:</strong> Allocation = Static; secure by default; supports availability zones (nonzonal, zonal, or zone-redundant).</p>
+
+          <h4 id="networking-private-ip">Allocate or assign private IP addresses</h4>
+          <p>Private IPs are used with VM network interfaces, <strong>internal</strong> load balancers, and Application Gateway. Azure can assign dynamically (next available in the subnet) or you assign statically (any unassigned/unreserved address in the subnet range). <strong>Dynamic</strong> is the default. Example: if 10.0.0.4–10.0.0.9 are taken, the next resource gets 10.0.0.10. <strong>Static:</strong> choose any free address in the subnet (e.g. 10.0.0.0/16 with 10.0.0.4–10.0.0.9 taken → you can pick 10.0.0.10–10.0.255.254).</p>
+          <table>
+            <tr><th>Resource</th><th>Private IP association</th><th>Dynamic</th><th>Static</th></tr>
+            <tr><td>Virtual machine</td><td>NIC</td><td>Yes</td><td>Yes</td></tr>
+            <tr><td>Internal load balancer</td><td>Front-end configuration</td><td>Yes</td><td>Yes</td></tr>
+            <tr><td>Application gateway</td><td>Front-end configuration</td><td>Yes</td><td>Yes</td></tr>
+          </table>
             </div>
           </div>
           <div class="collapsible-block" data-block="networking-secure">
