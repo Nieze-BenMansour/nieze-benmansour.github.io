@@ -1027,9 +1027,42 @@
             </div>
           </div>
           <div class="collapsible-block" data-block="networking-secure">
-            <h3 id="networking-secure" class="block-title">Secure access <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <h3 id="networking-secure" class="block-title">Configure network security groups <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
             <div class="block-content">
-          <p class="placeholder">Content summary will be added from Microsoft Learn content.</p>
+          <h4 id="networking-nsg-intro">Introduction to network security groups</h4>
+          <p><strong>Network security groups (NSGs)</strong> limit network traffic to resources in your virtual network. An NSG contains <strong>security rules</strong> that allow or deny inbound or outbound traffic. Use them to secure both VM networking and Azure services networking and to prevent unwanted or unsecured traffic from reaching key systems.</p>
+          <p><strong>Learning objectives:</strong> Determine when to use NSGs; create NSGs; implement and evaluate NSG rules; describe the function of <strong>application security groups (ASGs)</strong>. Prerequisites: familiarity with Azure VNets and VMs; working knowledge of the Azure portal; basic understanding of traffic routing and control.</p>
+
+          <h4 id="networking-nsg-implement">Implement network security groups</h4>
+          <p>You can assign an NSG to a <strong>subnet</strong> or to a <strong>network interface (NIC)</strong>. An NSG can be associated multiple times (to multiple subnets or NICs). You create the NSG and define security rules in the Azure portal; the VM Overview page shows associated NSGs, assigned subnets/NICs, and rules.</p>
+          <p><strong>NSGs and subnets:</strong> Assign an NSG to a subnet to create a protected <strong>screened subnet</strong> (DMZ—buffer between the VNet and the internet). The NSG restricts traffic to all resources in that subnet. Each subnet can have <strong>at most one</strong> NSG.</p>
+          <p><strong>NSGs and network interfaces:</strong> Assign an NSG to a NIC to control all traffic through that interface. Each NIC can have <strong>zero or one</strong> NSG. A NIC in a subnet can have its own NSG in addition to the subnet’s NSG.</p>
+
+          <h4 id="networking-nsg-rules">Determine network security group rules</h4>
+          <p>Security rules filter traffic in and out of subnets and NICs. Azure creates <strong>default rules</strong> in every NSG (e.g. <strong>DenyAllInbound</strong>, <strong>AllowInternetOutbound</strong>). You cannot remove default rules; you can override them by adding a rule with a <strong>higher priority</strong> (lower priority number).</p>
+          <p><strong>Rule conditions:</strong></p>
+          <table>
+            <tr><th>Setting</th><th>Values</th></tr>
+            <tr><td>Source</td><td>Any, IP Addresses, My IP address, Service Tag, or Application security group</td></tr>
+            <tr><td>Source port ranges</td><td>Ports the rule allows or denies</td></tr>
+            <tr><td>Destination</td><td>Any, IP Addresses, Service Tag, or Application security group</td></tr>
+            <tr><td>Protocol</td><td>TCP, UDP, ICMP, or Any (default)</td></tr>
+            <tr><td>Action</td><td>Allow or Deny</td></tr>
+            <tr><td>Priority</td><td>100–4,096; unique within the NSG; <strong>lower value = higher precedence</strong></td></tr>
+          </table>
+          <p><strong>Default inbound rules</strong> deny all inbound except from the VNet and Azure load balancer. <strong>Default outbound rules</strong> allow traffic to the internet and the VNet. Add custom rules to allow or deny specific traffic; process rules in priority order.</p>
+
+          <h4 id="networking-nsg-effective">Determine effective security rules</h4>
+          <p>NSGs are evaluated independently. For <strong>inbound</strong> traffic: Azure evaluates the <strong>subnet</strong> NSG first, then the <strong>NIC</strong> NSG. For <strong>outbound</strong>: <strong>NIC</strong> NSG first, then <strong>subnet</strong> NSG. Intra-subnet traffic (VMs in the same subnet) is also subject to these rules.</p>
+          <p><strong>Things to consider:</strong> (1) <strong>Allow all traffic</strong> — If you do not associate an NSG to a subnet or NIC, all traffic is allowed per Azure defaults. (2) <strong>Allow rules at both levels</strong> — To permit traffic, you must have an allow rule at both subnet and NIC if both have NSGs; otherwise traffic can be denied at one level. (3) <strong>Intra-subnet traffic</strong> — Subnet NSG rules apply to traffic between VMs in the same subnet; you can deny all intra-subnet traffic with a deny rule. (4) <strong>Rule priority</strong> — Use the lowest possible priority value for rules that must take precedence; leave gaps (e.g. 100, 200, 300) to insert new rules without renumbering. Use the <strong>Effective security rules</strong> link in the Azure portal (or <strong>Network Watcher</strong>) to see which rules apply to a VM, subnet, or NIC.</p>
+
+          <h4 id="networking-nsg-create-rules">Create network security group rules</h4>
+          <p>Add rules in the Azure portal under the NSG. Configure <strong>Source</strong> (inbound: IP range, ASG, or service tag), <strong>Destination</strong> (outbound: same options), <strong>Service</strong> (protocol and port range—e.g. HTTPS, RDP, SSH, FTP, DNS, or custom), and <strong>Priority</strong>. Rules are processed in priority order across the subnet and NIC NSGs.</p>
+
+          <h4 id="networking-asg">Implement application security groups</h4>
+          <p><strong>Application security groups (ASGs)</strong> let you group VMs by workload (e.g. web servers, app servers). You assign a VM’s NIC to an ASG, then use the ASG as <strong>source or destination</strong> in NSG rules instead of IP addresses. This gives an application-centric view and simplifies rule management.</p>
+          <p><strong>Example scenario (web + app tiers):</strong> Create ASGs for each tier; assign each VM’s NIC to the right ASG. NSG rules: <strong>Priority 100</strong> — Allow internet to web servers on HTTP (80) and HTTPS (443); <strong>Priority 110</strong> — Allow web servers to app servers on SQL (1433); <strong>Priority 120</strong> — Deny all to app servers on HTTP/HTTPS. Result: only web servers can reach the app/database tier; databases are protected from direct internet access.</p>
+          <p><strong>Advantages of ASGs:</strong> No need to maintain specific IP addresses in rules—add/remove VMs from the ASG and rules apply automatically. You do not need to align VMs to specific subnets; group by application and purpose. Fewer rules—one rule per ASG instead of per VM. Workload-based organization is easier to maintain. <strong>Service tags</strong> represent IP prefixes for Azure services and simplify rules for Azure service traffic; <strong>ASGs</strong> group your VMs and let you manage policy by application group.</p>
             </div>
           </div>
           <div class="collapsible-block" data-block="networking-dns-lb">
