@@ -1172,6 +1172,32 @@
             <tr><td>Azure Application Gateway</td><td>ADC as a service; Layer 7 (TLS offload, URL routing); regional (not global).</td></tr>
           </table>
           <p><strong>Azure Load Balancer</strong> is a high-performance, ultra-low-latency <strong>Layer 4</strong> service (TCP/UDP, inbound and outbound), built for millions of requests per second and zone-redundant high availability. It does <strong>not</strong> provide web application firewall (WAF) functionality—use Front Door or Application Gateway for that.</p>
+
+          <h4 id="networking-appgw-intro">Introduction to Azure Application Gateway</h4>
+          <p><strong>Azure Application Gateway</strong> processes traffic to web applications hosted on a pool of web servers (VMs, scale sets, App Service, or on-premises). It provides <strong>Layer 7</strong> load balancing of HTTP traffic, <strong>web application firewall (WAF)</strong> inspection, and <strong>TLS/SSL</strong> encryption between clients and the gateway and between the gateway and back-end servers. Use it to replace perimeter hardware that does health checks, TLS termination, session affinity, and security filtering (e.g. SQL injection, cross-site scripting). <strong>Learning objectives:</strong> Learn what Application Gateway is and what it provides; determine if it meets your needs. Prerequisites: basic networking; familiarity with VMs, App Service, and VNets.</p>
+
+          <h4 id="networking-appgw-what">What is Azure Application Gateway?</h4>
+          <p>Application Gateway manages client requests to web apps on a back-end pool. It load balances HTTP traffic and can inspect traffic with WAF. It supports TLS/SSL for client–gateway and gateway–back-end. <strong>Load balancing</strong> uses a <strong>round-robin</strong> process; <strong>session stickiness</strong> ensures requests in the same session go to the same back-end server (important for e-commerce and session state).</p>
+          <p><strong>Features:</strong> HTTP, HTTPS, HTTP/2, and WebSocket; <strong>web application firewall</strong> to protect against vulnerabilities; end-to-end request encryption; <strong>autoscaling</strong>; <strong>connection draining</strong> for graceful removal of back-end members during updates.</p>
+
+          <h4 id="networking-appgw-how">How Azure Application Gateway works</h4>
+          <p><strong>Components:</strong></p>
+          <ul>
+            <li><strong>Front-end IP</strong> — One public IP and/or one private IP. Clients send requests to this address.</li>
+            <li><strong>Listeners</strong> — Accept traffic on a combination of protocol, port, host, and IP. <strong>Basic</strong> listener routes by URL path; <strong>Multi-site</strong> listener also uses hostname. Listeners handle TLS/SSL certificates (client–gateway).</li>
+            <li><strong>Routing rules</strong> — Bind a listener to back-end pools. Rules use hostname and path to direct requests to the right pool. Associated <strong>HTTP settings</strong> define: protocol to back-end, session stickiness, connection draining, request timeout, health probes. Optional TLS/SSL to back-end (certificate or App Service–managed).</li>
+            <li><strong>Back-end pools</strong> — VMs, scale set, App Service, or on-premises servers. Same configuration and security per pool. Gateway can re-encrypt traffic to back-end using a certificate; App Service back-ends are trusted and auto-encrypted.</li>
+          </ul>
+          <p><strong>Load balancing</strong> is round-robin at <strong>Layer 7</strong> (URL host and path), unlike Load Balancer (Layer 4, IP/port). Session stickiness can be configured.</p>
+          <p><strong>Web application firewall (WAF)</strong> — Optional; runs before the listener. Checks requests against <strong>OWASP</strong> rules (e.g. SQL injection, cross-site scripting, command injection, HTTP smuggling/splitting, bots, protocol violations). Uses <strong>Core Rule Set (CRS)</strong> 3.2, 3.1, 3.0, or 2.2.9 (default 3.1). You can enable specific rules or customize what to inspect and message size limits.</p>
+          <p><strong>Routing methods:</strong> <strong>Path-based routing</strong> — Different URL paths to different pools (e.g. <code>/video/*</code> → video pool, <code>/images/*</code> → images pool). <strong>Multi-site routing</strong> — Multiple hostnames (e.g. contoso.com, fabrikam.com) on the same gateway; each listener routes to a different pool. Also: <strong>redirection</strong> (e.g. HTTP→HTTPS), <strong>HTTP header rewrite</strong>, <strong>custom error pages</strong>.</p>
+          <p><strong>TLS/SSL termination</strong> — Terminate TLS at the gateway to offload CPU from back-end servers; no certs on servers if termination only. For <strong>end-to-end encryption</strong>, the gateway decrypts with its key then re-encrypts with the back-end’s public key. Only ports 80/443 are exposed on the gateway to the internet, reducing the attack surface.</p>
+          <p><strong>Health probes</strong> — Determine which back-end servers are available. HTTP response status 200–399 = healthy. Default probe waits 30 seconds before marking unavailable. <strong>Autoscaling</strong> adjusts capacity with traffic. <strong>WebSocket and HTTP/2</strong> are supported natively over ports 80 and 443.</p>
+
+          <h4 id="networking-appgw-when">When to use and when not to use Azure Application Gateway</h4>
+          <p><strong>Use Application Gateway when:</strong> You need to direct traffic to a back-end pool (Azure or on-premises); health probes so traffic is not sent to unavailable servers; <strong>TLS termination</strong> to reduce server CPU; <strong>WAF</strong> to block SQL injection, XSS, and other web threats; <strong>session affinity</strong> for apps that store session state on the server.</p>
+          <p><strong>Do not use when:</strong> A single web app with low traffic already handles load without a pool.</p>
+          <p><strong>Comparison:</strong> <strong>Front Door</strong> — Global Layer 7, WAF, caching, multi-region. <strong>Traffic Manager</strong> — DNS-based, global; slower failover due to DNS. <strong>Load Balancer</strong> — Layer 4, regional, ultra-low latency. <strong>Application Gateway</strong> — Regional, Layer 7 (path/host-based routing, WAF, TLS offload), suitable when you need application-level routing and WAF in one region.</p>
             </div>
           </div>
         </section>
