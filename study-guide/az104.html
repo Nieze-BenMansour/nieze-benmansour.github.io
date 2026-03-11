@@ -887,9 +887,62 @@
           <h2>2. Implement and Manage Storage</h2>
           <p class="weight">Exam weight: 15–20%</p>
           <div class="collapsible-block" data-block="storage-access">
-            <h3 id="storage-access" class="block-title">Storage access <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <h3 id="storage-access" class="block-title">Configure Azure Storage security <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
             <div class="block-content">
-          <p class="placeholder">Content summary will be added from Microsoft Learn content.</p>
+          <h4 id="storage-security-intro">Introduction</h4>
+          <p>Azure Storage provides security capabilities to build secure applications. This module covers securing sensitive and personal data for internal and external users and granting secure access. <strong>Learning objectives:</strong> Configure shared access signature (SAS), including URI and SAS parameters; configure Azure Storage encryption; implement customer-managed keys; recommend opportunities to improve storage security. <strong>Exam (Implement and manage storage 15–20%):</strong> Secure storage — generate SAS tokens; manage access keys; configure stored access policies. <strong>Prerequisites:</strong> Familiarity with the Azure portal.</p>
+
+          <h4 id="storage-security-strategies">Review Azure Storage security strategies</h4>
+          <p>Common strategies: encryption, authentication, authorization, user access control (credentials, file permissions, private signatures). Apply <strong>defense in depth</strong> across storage features.</p>
+          <p><strong>Encryption at rest:</strong> <strong>Storage Service Encryption (SSE)</strong> with 256-bit AES encrypts all data written to Azure Storage; decryption on read is automatic, no extra charge or performance impact. Includes VHD encryption (Azure Disk Encryption: BitLocker for Windows, dm-crypt for Linux).</p>
+          <p><strong>Encryption in transit:</strong> Use HTTPS; enable <strong>secure transfer required</strong> on the storage account so HTTP is refused and SMB 3.0 is required for file share mounts.</p>
+          <p><strong>Encryption models:</strong> Server-side with service-managed keys, customer-managed keys in Key Vault, or customer-managed keys on customer-controlled hardware; client-side with keys managed on-premises or elsewhere.</p>
+          <p><strong>Authorize requests:</strong> Prefer <strong>Microsoft Entra ID with managed identities</strong> for blob, queue, and table data; better security and ease of use than Shared Key. <strong>RBAC</strong> — assign roles scoped to the storage account so only intended users/apps have access. <strong>Storage analytics</strong> — logging for tracing requests, usage trends, and diagnostics. See the Microsoft storage cloud security benchmark for recommendations.</p>
+          <table>
+            <tr><th>Strategy</th><th>Description</th></tr>
+            <tr><td>Microsoft Entra ID</td><td>Cloud identity and access management; fine-grained access via RBAC for users, groups, applications.</td></tr>
+            <tr><td>Shared Key</td><td>Account access keys and parameters produce an encrypted signature in the Authorization header.</td></tr>
+            <tr><td>Shared access signatures (SAS)</td><td>Delegate access to a specific resource with specified permissions and time interval.</td></tr>
+            <tr><td>Anonymous access</td><td>Optional public read at container or blob level; no authorization for read requests.</td></tr>
+          </table>
+
+          <h4 id="storage-security-sas">Create shared access signatures</h4>
+          <p>A <strong>shared access signature (SAS)</strong> is a URI that grants restricted access to storage resources without exposing account keys. Give a SAS to clients for access for a limited time. Types: <strong>User delegation SAS</strong> — secured with Microsoft Entra credentials and SAS permissions; supported for Blob and Data Lake. <strong>Account-level SAS</strong> — access to anything a service-level SAS can allow plus other resources (e.g. create file systems). <strong>Service-level SAS</strong> — access to specific resources (e.g. list files, download a file). <strong>Stored access policy</strong> — server-side grouping of SASs with additional restrictions; use where possible to revoke without regenerating account keys.</p>
+          <p><strong>Risk mitigation:</strong> Always use HTTPS for creation and distribution (avoid man-in-the-middle). Reference stored access policies when possible. Set near-term expiry for ad-hoc SASs. Require clients to renew before expiry. Set start time at least 15 minutes in the past (or omit) to avoid clock skew; allow up to 15 min skew on expiry. Define minimum required permissions. Validate data written via SAS before use. For high-risk operations, use a middle-tier service (validation, auth, auditing) or make container public instead of issuing SASs.</p>
+
+          <h4 id="storage-security-sas-uri">Identify URI and SAS parameters</h4>
+          <p>The SAS URI = resource URI + SAS token. Example (service-level SAS for read/write on a blob):</p>
+          <p><code>https://myaccount.blob.core.windows.net/?restype=service&amp;comp=properties&amp;sv=2015-04-05&amp;ss=bf&amp;st=...&amp;se=...&amp;sr=b&amp;sp=rw&amp;sip=168.1.5.60-168.1.5.70&amp;spr=https&amp;sig=...</code></p>
+          <table>
+            <tr><th>Parameter</th><th>Example</th><th>Description</th></tr>
+            <tr><td>Resource URI</td><td>endpoint + restype=service &amp; comp=properties</td><td>Storage endpoint; service-level in this example.</td></tr>
+            <tr><td>Storage version</td><td>sv=2015-04-05</td><td>API version to use.</td></tr>
+            <tr><td>Storage service</td><td>ss=bf</td><td>Blob and/or Files (b=blob, f=file).</td></tr>
+            <tr><td>Start time</td><td>st=...</td><td>UTC start; omit for valid immediately.</td></tr>
+            <tr><td>Expiry time</td><td>se=...</td><td>UTC expiration.</td></tr>
+            <tr><td>Resource</td><td>sr=b</td><td>Resource type (e.g. b=blob).</td></tr>
+            <tr><td>Permissions</td><td>sp=rw</td><td>e.g. read, write.</td></tr>
+            <tr><td>IP range</td><td>sip=168.1.5.60-168.1.5.70</td><td>Accepted client IP range.</td></tr>
+            <tr><td>Protocol</td><td>spr=https</td><td>Only HTTPS accepted.</td></tr>
+            <tr><td>Signature</td><td>sig=...</td><td>HMAC-SHA256, Base64.</td></tr>
+          </table>
+
+          <h4 id="storage-security-encryption">Determine Azure Storage encryption</h4>
+          <p>Encryption at rest meets security and compliance; encryption/decryption is automatic—no code changes. New storage accounts get two <strong>512-bit storage account access keys</strong> for Shared Key auth or SAS signing. Prefer <strong>Azure Key Vault</strong> to manage keys and rotate/regenerate regularly; manual rotation is also supported. Data is encrypted before write and decrypted on read; 256-bit <strong>AES</strong>; transparent to users; enabled for all accounts and cannot be disabled.</p>
+
+          <h4 id="storage-security-encryption-config">Configure Azure Storage encryption</h4>
+          <p>In the portal, choose encryption type: <strong>Platform-managed keys (PMK)</strong> — generated, stored, and managed by Azure; default. <strong>Customer-managed keys (CMK)</strong> — created, stored, and administered by the customer in Key Vault or HSM; BYOK = bring your own key from outside. <strong>Infrastructure encryption</strong> — optional for account or encryption scope; data encrypted twice (service + infrastructure) with two algorithms and two keys.</p>
+
+          <h4 id="storage-security-cmk">Create customer-managed keys</h4>
+          <p>Use <strong>Azure Key Vault</strong> to manage encryption keys (Key Vault APIs to generate, or create and store your own). Benefits: more flexibility and control; create, disable, audit, rotate, define access controls. Storage account and key vault must be in the <strong>same region</strong> (can be different subscriptions). In the portal: set <strong>Encryption type</strong> to customer-managed; specify <strong>Encryption key</strong> by URI or select from an existing key vault.</p>
+
+          <h4 id="storage-security-insights">Apply Azure Storage security best practices</h4>
+          <p><strong>Storage insights</strong> provides monitoring of performance, capacity, and availability. Benefits: detailed metrics, logs, and diagnostics (latency, throughput, capacity, transactions); enhanced security and compliance with actionable alerts; integration with RBAC, Microsoft Entra ID, connection strings, ACLs; unified view of storage services. Use for real-time monitoring, security auditing, and health analysis and optimization.</p>
+
+          <h4 id="storage-security-exercise">Exercise: Manage Azure Storage</h4>
+          <p>Lab: Create storage accounts for Azure Blobs and Azure Files; configure and secure blob containers; use Storage Browser to configure and secure Azure file shares. Consider the security features covered in this module. <strong>Architecture:</strong></p>
+          <p><img src="images/az104-storage-security-architecture.png" alt="Architecture diagram: Resource group az104-07-rg7 with Storage account (Task 1), Blob container (Task 2), and File share (Task 3)." style="max-width:100%; height:auto; border:1px solid var(--border); border-radius:6px;"></p>
+          <p><strong>Job skills:</strong> Create and configure a storage account; create and configure secure blob storage; create and configure secure Azure file storage.</p>
             </div>
           </div>
           <div class="collapsible-block" data-block="storage-accounts">
@@ -997,6 +1050,51 @@
 
           <h4 id="blob-exercise">Exercise – Provide storage for the public website</h4>
           <p>Scenario: Website with product images, videos, marketing content; global customers; mission-critical, low latency; version tracking and quick restore needed. Tasks: Create a storage account with high availability; enable anonymous public access; create a blob container for website documents; enable <strong>soft delete</strong> for easy restore; enable <strong>blob versioning</strong>. Estimated time: 30 minutes; Azure subscription required.</p>
+            </div>
+          </div>
+          <div class="collapsible-block" data-block="storage-azure-files">
+            <h3 id="storage-azure-files" class="block-title">Configure Azure Files <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <div class="block-content">
+          <h4 id="files-intro">Introduction</h4>
+          <p>Azure Files provides <strong>fully managed file shares</strong> in the cloud via industry-standard protocols. <strong>Azure File Sync</strong> caches Azure Files shares on on-premises Windows Server or a cloud VM. This module covers implementing a central location for organizational documents across regions. <strong>Learning objectives:</strong> Identify storage for file shares; compare file shares to blob storage; configure Azure file shares, snapshots, and soft delete; use Azure Storage Explorer to access file shares. <strong>Exam (Implement and manage storage 15–20%):</strong> Create and configure a file share; configure snapshots and soft delete for Azure Files. <strong>Prerequisites:</strong> Familiarity with shared file systems and the Azure portal.</p>
+
+          <h4 id="files-compare">Compare storage for file shares and blob data</h4>
+          <p><strong>Azure Files</strong> — Fully managed file shares; access via <strong>SMB</strong>, <strong>NFS</strong>, and HTTP; Windows, Linux, macOS. <strong>Characteristics:</strong> Serverless (PaaS, no VMs/OS to manage); single share up to <strong>100 TiB</strong>, file up to <strong>4 TiB</strong>; hierarchical folder structure; encryption at rest and in transit; access from anywhere with internet; integrate with <strong>Microsoft Entra</strong> or AD DS (synced to Entra) for same experience as on-prem; previous versions and backups via <strong>share snapshots</strong> (File Explorer) and <strong>Azure Backup</strong>; redundancy follows the storage account replication setting.</p>
+          <p><strong>Use cases:</strong> Replace or supplement on-prem file servers/NAS; global access from multiple OSs; lift-and-shift apps that expect a file share; <strong>Azure File Sync</strong> to replicate shares to Windows Servers (on-prem or cloud) for performance and caching; shared app settings (config files); diagnostic data (logs, metrics, crash dumps); tools and utilities for VMs/cloud services.</p>
+          <table>
+            <tr><th>Azure Files (file shares)</th><th>Azure Blob Storage (blobs)</th></tr>
+            <tr><td>SMB and NFS protocols, client libraries, REST; true directory objects; access across multiple VMs.</td><td>Client libraries and REST; unstructured data in block blobs at scale; flat namespace; access via container.</td></tr>
+            <tr><td>Ideal for lift-and-shift using native file system APIs; share data between apps in Azure; dev/debug tools shared across VMs.</td><td>Ideal for streaming and random-access; access application data from anywhere.</td></tr>
+          </table>
+
+          <h4 id="files-manage">Manage Azure file shares</h4>
+          <p>Two protocols for mounting: <strong>SMB</strong> and <strong>NFS</strong> (not both on the same share; SMB and NFS shares can exist in the same storage account).</p>
+          <table>
+            <tr><th>Storage tier</th><th>Description</th></tr>
+            <tr><td>Premium</td><td>SSDs; FileStorage account type only; consistent high performance, low latency; LRS (ZRS in some regions); not in all regions.</td></tr>
+            <tr><td>Standard</td><td>HDDs; general-purpose v2 (GPv2); general-purpose and dev/test; LRS, ZRS, GRS, GZRS; all regions.</td></tr>
+          </table>
+          <p><strong>Authentication:</strong> <strong>Identity-based (SMB)</strong> — SSO like on-prem (recommended). <strong>Access key</strong> — account key (static, full control); secure keys, avoid sharing; prefer identity-based. <strong>SAS token</strong> — restricted URI (permissions, time, IP, protocol); with Azure Files, SAS is for REST API access from code only.</p>
+          <p><strong>Creating SMB file shares (classic):</strong> File share lives in a storage account; choose <strong>SSD (premium)</strong> for fast, low-latency or <strong>HDD (standard)</strong> for general use. SMB access tiers: transaction optimized, hot, cool. SMB uses <strong>port 445</strong>; Azure provides scripts for Windows and Linux. Note: File shares (preview) can be a top-level resource without a storage account.</p>
+
+          <h4 id="files-snapshots">Create file share snapshots</h4>
+          <p><strong>Share snapshots</strong> are point-in-time, read-only copies at the <strong>file share level</strong>. <strong>Incremental</strong> — only changes since the last snapshot are stored (faster, lower cost); only the most recent snapshot is needed to restore the share. Restore at <strong>individual file</strong> level. Deleting a file share deletes all its snapshots.</p>
+          <p><strong>Benefits:</strong> Protect against application error or data corruption (snapshot before deploying new code; roll back if needed); recover from accidental deletion or unintended changes (previous versions); backup and recovery (periodic snapshots for audit or DR).</p>
+
+          <h4 id="files-soft-delete">Implement soft delete for Azure Files</h4>
+          <p><strong>Soft delete</strong> is enabled at the <strong>storage account level</strong>; deleted content moves to a soft-deleted state instead of being permanently erased. Configure a <strong>retention period</strong> (1–365 days) for recovery. Can be enabled on new or existing file shares.</p>
+          <p><strong>Use cases:</strong> Recover from accidental data loss; restore to a known good state after a failed upgrade; ransomware recovery without paying; long-term retention for compliance; business continuity and high availability.</p>
+
+          <h4 id="files-storage-explorer">Use Azure Storage Explorer</h4>
+          <p>Standalone app for Windows, macOS, Linux to work with Azure Storage data. Requires <strong>management (ARM)</strong> and <strong>data layer</strong> permissions (e.g. Microsoft Entra ID) for full access. <strong>Connect:</strong> storage in your Azure subscriptions; storage shared from other subscriptions; local storage via <strong>Azure Storage Emulator</strong>; <strong>external storage</strong> (account name + key, or other national clouds with custom endpoint); <strong>attach with SAS</strong> (account or specific service: blob container, queue, table). <strong>External storage:</strong> Account name and account key (key1 in portal); for national clouds, set Storage endpoints domain to Other and enter custom endpoint. <strong>Access keys:</strong> Two keys per account for rotation; store securely and regenerate regularly; update all apps/resources when you rotate.</p>
+
+          <h4 id="files-file-sync">Consider Azure File Sync</h4>
+          <p><strong>Azure File Sync</strong> caches multiple Azure Files shares on on-premises Windows Server or a cloud VM. Centralize file shares in Azure Files while keeping the performance and compatibility of an on-prem file server. Windows Server becomes a fast cache; access data locally via SMB, NFS, FTPS. Supports many caches worldwide.</p>
+          <p><strong>Cloud tiering (optional):</strong> Frequently accessed files stay on the server; other files are <strong>tiered</strong> to Azure Files per policy. Tiered files are replaced locally by a <strong>pointer (reparse point)</strong> — a URL to the file in Azure. When a user opens a tiered file, Azure File Sync recalls it from Azure transparently. Tiered files show greyed icons and offline attribute.</p>
+          <p><strong>Use cases:</strong> Lift-and-shift apps that need access between Azure and on-prem; branch offices (back up files, add new servers connected to Azure); backup and DR (Azure Backup for on-prem data; restore metadata quickly, recall data as needed); file archiving with cloud tiering (only recently accessed data on local servers).</p>
+
+          <h4 id="files-knowledge-check">Knowledge check</h4>
+          <p>The module includes an assessment on recommending Azure Files vs Blob vs Data Lake for streaming/random access; soft delete retention and compliance; features unique to Azure Files (true directory objects); choosing Azure Files for shared tools across regions; enabling soft delete (retention in portal); recovering deleted shares (soft delete); soft delete benefit and max retention (recovery; 365 days); Azure File Sync feature for local cache vs Azure (cloud tiering); max soft delete retention (365 days).</p>
             </div>
           </div>
         </section>
