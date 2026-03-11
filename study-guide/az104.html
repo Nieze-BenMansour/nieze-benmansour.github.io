@@ -893,9 +893,56 @@
             </div>
           </div>
           <div class="collapsible-block" data-block="storage-accounts">
-            <h3 id="storage-accounts" class="block-title">Storage accounts <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <h3 id="storage-accounts" class="block-title">Configure storage accounts <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
             <div class="block-content">
-          <p class="placeholder">Content summary will be added from Microsoft Learn content.</p>
+          <h4 id="storage-accounts-intro">Introduction</h4>
+          <p>Azure Storage is Microsoft’s cloud storage for modern data scenarios. This section covers configuring storage accounts, choosing storage types, replication strategies, and secure access. <strong>Learning objectives:</strong> Identify features and use cases for storage accounts; select storage types and create accounts; select a replication strategy; configure secure network access to storage endpoints. Prerequisites: Azure portal experience; familiarity with data storage types.</p>
+
+          <h4 id="storage-accounts-implement">Implement Azure Storage</h4>
+          <p>Azure Storage provides a scalable object store, file system service, messaging store, and NoSQL store. Use it for files, messages, tables, and for apps (websites, mobile, desktop), IaaS VMs, and PaaS services.</p>
+          <table>
+            <tr><th>Category</th><th>Description</th><th>Examples</th></tr>
+            <tr><td>Virtual machine data</td><td>Disks and files; persistent block storage; managed file shares.</td><td>Azure managed disks (data disks for DB files, static content, app code).</td></tr>
+            <tr><td>Unstructured data</td><td>Nonrelational; no fixed schema.</td><td>Azure Blob Storage (REST-based object store), Azure Data Lake Storage (HDFS as a service).</td></tr>
+            <tr><td>Structured data</td><td>Relational format; shared schema; tables, rows, columns.</td><td>Azure Table Storage, Azure Cosmos DB, Azure SQL Database.</td></tr>
+          </table>
+          <p><strong>Considerations:</strong> <strong>Durability and availability</strong> — Replication across datacenters or regions. <strong>Secure access</strong> — All data encrypted; fine-grained access control. <strong>Scalability</strong> — Massively scalable. <strong>Manageability</strong> — Microsoft handles hardware and updates. <strong>Accessibility</strong> — HTTP/HTTPS worldwide; SDKs (.NET, Java, Node.js, Python, etc.), PowerShell, CLI, REST API, Azure Storage Explorer.</p>
+
+          <h4 id="storage-accounts-services">Explore Azure Storage services</h4>
+          <p><strong>Azure Blob Storage</strong> — Object storage for unstructured data (text, binary). Use for: serving images/documents to a browser; distributed file access; streaming video/audio; backup, DR, archive; analytics. Access via URLs, REST API, PowerShell, CLI, client libraries.</p>
+          <p><strong>Azure Files</strong> — Highly available network file shares via <strong>SMB</strong> and <strong>NFS</strong>. Multiple VMs can read/write; REST and client libraries supported. Use for: migrating on-prem apps that use file shares; shared config and tools; diagnostic logs, metrics, crash dumps. Authentication via storage account credentials; mounted users get read/write access.</p>
+          <p><strong>Azure Queue Storage</strong> — Store and retrieve messages (up to 64 KB each; millions per queue). Use for async processing (e.g. upload pictures → message → Azure Function creates thumbnails); scale components separately.</p>
+          <p><strong>Azure Table Storage</strong> — Nonrelational structured (NoSQL) key/attribute store; schemaless. Fast, cost-effective. Azure Cosmos DB Table API adds throughput-optimized tables, global distribution, secondary indexes.</p>
+
+          <h4 id="storage-accounts-types">Determine storage account types</h4>
+          <p><strong>Standard</strong> — Backed by HDD; lowest cost per GB; for bulk or infrequently accessed data. <strong>Premium</strong> — Backed by SSD; consistent low latency; for I/O-intensive workloads (e.g. VM disks, databases). You cannot convert Standard to Premium or vice versa; create a new account and copy data if needed. All types use <strong>Storage Service Encryption (SSE)</strong> at rest.</p>
+          <table>
+            <tr><th>Account type</th><th>Supported services</th><th>Usage</th></tr>
+            <tr><td>Standard general-purpose v2</td><td>Blob (incl. Data Lake), Queue, Table, Azure Files</td><td>Most scenarios; blobs, file shares, queues, tables, page blobs (disks).</td></tr>
+            <tr><td>Premium block blobs</td><td>Blob (block and append)</td><td>High transaction rates; small objects; low latency.</td></tr>
+            <tr><td>Premium file shares</td><td>Azure Files only</td><td>Enterprise/high-performance; SMB and NFS.</td></tr>
+            <tr><td>Premium page blobs</td><td>Page blobs only</td><td>OS disks, VM data disks, databases.</td></tr>
+          </table>
+
+          <h4 id="storage-accounts-replication">Determine replication strategies</h4>
+          <p>Data is always replicated for durability and availability. Options:</p>
+          <p><strong>LRS (Locally redundant storage)</strong> — Lowest cost; least durability; three copies within one datacenter. Use when data can be reconstructed, is transient, or governance requires single-location replication.</p>
+          <p><strong>ZRS (Zone redundant storage)</strong> — Synchronous replication across three storage clusters in three <strong>availability zones</strong> in one region. Good performance and low latency; data available if a zone is down. Not in all regions; changing to ZRS can require data movement.</p>
+          <p><strong>GRS (Geo-redundant storage)</strong> — Replicates to a <strong>secondary region</strong> (hundreds of miles away). Higher durability; 16 9’s; protects from regional outage. Read from secondary only if Microsoft initiates failover. <strong>RA-GRS</strong> adds read access to the secondary region at any time.</p>
+          <p><strong>GZRS (Geo-zone-redundant storage)</strong> — ZRS in primary region plus replication to secondary region. Combines zone redundancy with regional disaster protection. 16 9’s. <strong>RA-GZRS</strong> adds read access to secondary. Microsoft recommends GZRS/RA-GZRS for consistency, durability, HA, performance, and DR.</p>
+          <table>
+            <tr><th>Scenario</th><th>Supported</th></tr>
+            <tr><td>Node in datacenter unavailable</td><td>LRS, ZRS, GRS, RA-GRS, GZRS, RA-GZRS</td></tr>
+            <tr><td>Entire datacenter unavailable</td><td>ZRS, GRS, RA-GRS, GZRS, RA-GZRS</td></tr>
+            <tr><td>Region-wide outage</td><td>GRS, RA-GRS, GZRS, RA-GZRS</td></tr>
+            <tr><td>Read access during region outage</td><td>RA-GRS, RA-GZRS</td></tr>
+          </table>
+
+          <h4 id="storage-accounts-access">Access storage and custom domains</h4>
+          <p>Every object has a unique URL. The storage account name is the subdomain; with the service-specific domain it forms the <strong>endpoint</strong>. Example: account <code>mystorageaccount</code> → Blob <code>mystorageaccount.blob.core.windows.net</code>, Table <code>mystorageaccount.table.core.windows.net</code>, Queue <code>mystorageaccount.queue.core.windows.net</code>, File <code>mystorageaccount.file.core.windows.net</code>. Object URL = endpoint + path (e.g. <code>mystorageaccount.blob.core.windows.net/mycontainer/myblob</code>). <strong>Custom domain:</strong> Map a custom domain (e.g. <code>blobs.contoso.com</code>) to the blob endpoint via a <strong>CNAME</strong> record pointing the subdomain to <code>&lt;account&gt;.blob.core.windows.net</code>.</p>
+
+          <h4 id="storage-accounts-secure">Secure storage endpoints</h4>
+          <p>Restrict network access in the storage account under <strong>Firewalls and virtual networks</strong>. Allow access from specific <strong>virtual networks (subnets)</strong> or <strong>public IP ranges</strong>. Subnets and VNets must be in the same region or region pair as the storage account. Use this to restrict access to trusted networks only. Test endpoints after configuration to verify access is limited as expected. Service endpoints provide the base URL for blob, queue, table, and file resources; use with firewall rules and VNet integration.</p>
             </div>
           </div>
           <div class="collapsible-block" data-block="storage-blob-files">
