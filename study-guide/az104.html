@@ -946,9 +946,57 @@
             </div>
           </div>
           <div class="collapsible-block" data-block="storage-blob-files">
-            <h3 id="storage-blob-files" class="block-title">Blob and Azure Files <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <h3 id="storage-blob-files" class="block-title">Configure Azure Blob Storage <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
             <div class="block-content">
-          <p class="placeholder">Content summary will be added from Microsoft Learn content.</p>
+          <h4 id="blob-intro">Introduction</h4>
+          <p>Azure Blob Storage stores large amounts of <strong>unstructured object data</strong> (text or binary). This module covers configuring Blob Storage for scenarios like a media library with high access, using <strong>access tiers</strong> to reduce cost and improve performance, <strong>lifecycle management</strong> for older data, and <strong>object replication</strong> for failover. <strong>Learning objectives:</strong> Understand purpose and benefits of Blob Storage; create and configure Blob Storage accounts; manage containers and blobs; optimize performance and scalability; implement lifecycle management policies; determine pricing. <strong>Prerequisites:</strong> Cloud computing basics; Azure fundamentals (ARM, storage accounts, VNets); file systems and replication concepts; Azure portal or CLI; basic scripting (PowerShell, Python) helpful.</p>
+
+          <h4 id="blob-implement">Implement Azure Blob Storage</h4>
+          <p>Blob = Binary Large Object. Blob Storage stores unstructured data as <strong>objects/blobs</strong> in the cloud. Three resources: (1) <strong>Azure storage account</strong>, (2) <strong>containers</strong> in the account, (3) <strong>blobs</strong> in a container. Configure: container options; blob types and upload options; <strong>access tiers</strong>; <strong>lifecycle rules</strong>; <strong>object replication</strong>. Use cases: serve images/documents to a browser; distributed file access; streaming video/audio; backup, restore, DR, archiving; data for analysis (on-prem or Azure).</p>
+
+          <h4 id="blob-containers">Create blob containers</h4>
+          <p>A <strong>container</strong> groups a set of blobs; a blob must live in a container. Unlimited blobs per container; unlimited containers per account. Create the container before uploading. <strong>Container settings (portal):</strong></p>
+          <ul>
+            <li><strong>Name:</strong> Unique within the storage account; lowercase letters, numbers, hyphens only; must start with letter or number; 3–63 characters.</li>
+            <li><strong>Public access level:</strong> <strong>Private</strong> (default) — no anonymous access; <strong>Blob</strong> — anonymous public read for blobs only; <strong>Container</strong> — anonymous public read and list for the whole container.</li>
+          </ul>
+
+          <h4 id="blob-access-tiers">Assign blob access tiers</h4>
+          <p>Tiers: <strong>Hot</strong>, <strong>Cool</strong>, <strong>Cold</strong>, <strong>Archive</strong>. Each is optimized for a specific access pattern.</p>
+          <ul>
+            <li><strong>Hot</strong> — Frequent reads/writes; actively processed data; highest storage cost, lowest access cost.</li>
+            <li><strong>Cool</strong> — Infrequently accessed; min 30 days; short-term backup/DR, older media; lower storage cost, higher access cost than Hot.</li>
+            <li><strong>Cold</strong> — Infrequently accessed; min 90 days; lower storage and higher access cost than Cool.</li>
+            <li><strong>Archive</strong> — Offline; retrieval latency of hours; min 180 days or early deletion charge; secondary backups, raw data, compliance; most cost-effective storage; most expensive access. Cannot read/modify blob content directly; metadata and index tags are accessible. <strong>Rehydration</strong> (move to Hot, Cool, or Cold) is required to read content.</li>
+          </ul>
+          <table>
+            <tr><th>Comparison</th><th>Hot</th><th>Cool</th><th>Cold</th><th>Archive</th></tr>
+            <tr><td>Availability</td><td>99.9%</td><td>99%</td><td>99%</td><td>99%</td></tr>
+            <tr><td>Availability (RA-GRS reads)</td><td>99.99%</td><td>99.9%</td><td>99.9%</td><td>99.9%</td></tr>
+            <tr><td>Latency (time to first byte)</td><td>milliseconds</td><td>milliseconds</td><td>milliseconds</td><td>hours</td></tr>
+            <tr><td>Minimum storage duration</td><td>N/A</td><td>30 days</td><td>90 days</td><td>180 days</td></tr>
+          </table>
+
+          <h4 id="blob-lifecycle">Add blob lifecycle management rules</h4>
+          <p>Lifecycle management uses <strong>rule-based policies</strong> on GPv2 and Blob Storage accounts to transition data to cooler tiers and set expiration. <strong>Actions:</strong> Transition blobs to cooler tier (Hot→Cool, Hot→Archive, Cool→Archive); delete current version, previous versions, or snapshots at end of lifecycle. <strong>Scope:</strong> Entire account, selected containers, or subset by <strong>name prefix</strong> or <strong>blob index tags</strong>. Rules use <strong>If–Then</strong> conditions: <strong>If</strong> — e.g. “more than X days ago” (since last modification); <strong>Then</strong> — Move to cool/cold/archive storage, or Delete the blob. Example: data hot for first 2 weeks → Hot; occasional after that → Cool; rarely after 1 month → Archive; configure lifecycle rules to move aging data accordingly.</p>
+
+          <h4 id="blob-object-replication">Determine blob object replication</h4>
+          <p><strong>Object replication</strong> copies blobs asynchronously between containers/regions per policy (blob content, metadata, versions). <strong>Requirements:</strong> <strong>Blob versioning</strong> must be enabled on both source and destination accounts (enables recovery of modified/deleted data). Snapshots are <strong>not</strong> replicated. Source and destination can be in Hot, Cool, or Cold (can be different tiers). You create a <strong>replication policy</strong> (source and destination storage accounts) with one or more <strong>rules</strong> (source container, destination container, and which blobs to replicate). <strong>Benefits:</strong> Reduce latency by reading from a closer region; run compute on same blobs in different regions; process in one location and replicate results; use lifecycle policies to move replicated data to Archive to manage costs.</p>
+
+          <h4 id="blob-manage">Manage blobs</h4>
+          <p>Three blob types:</p>
+          <ul>
+            <li><strong>Block blob</strong> — Data in blocks assembled into a blob; default type; ideal for text/binary, files, images, videos.</li>
+            <li><strong>Append blob</strong> — Blocks optimized for append operations; good for logging.</li>
+            <li><strong>Page blob</strong> — Up to 8 TB; efficient for frequent read/write; used for VM OS and data disks.</li>
+          </ul>
+          <p>You cannot change a blob’s type after creation. <strong>Portal:</strong> Upload a few files; set blob type, block size, container/folder, access tier, encryption scope. <strong>Tools for larger uploads:</strong> <strong>Azure Storage Explorer</strong> — upload, download, manage blobs/files/queues/tables and Data Lake entities; <strong>AzCopy</strong> — command-line copy to/from Blob Storage, across containers and accounts; <strong>Azure Data Box Disk</strong> — ship SSDs for large or network-constrained data transfer into Blob Storage.</p>
+
+          <h4 id="blob-pricing">Determine Blob Storage pricing</h4>
+          <p>Use the <strong>Azure Pricing Calculator</strong>; costs depend on: volume stored per month; operations and data transfer; redundancy option. <strong>Performance tiers:</strong> Cooler tier = lower per-GB storage cost. <strong>Data access:</strong> Cool and Archive charge per-GB for reads. <strong>Transactions:</strong> Per-transaction charge; higher in cooler tiers. <strong>Geo-replication:</strong> Per-GB charge for GRS/RA-GRS. <strong>Outbound transfer:</strong> Per-GB bandwidth. <strong>Tier changes:</strong> Cool→Hot = charge to read all data; Hot→Cool (GPv2) = charge to write all data to Cool.</p>
+
+          <h4 id="blob-exercise">Exercise – Provide storage for the public website</h4>
+          <p>Scenario: Website with product images, videos, marketing content; global customers; mission-critical, low latency; version tracking and quick restore needed. Tasks: Create a storage account with high availability; enable anonymous public access; create a blob container for website documents; enable <strong>soft delete</strong> for easy restore; enable <strong>blob versioning</strong>. Estimated time: 30 minutes; Azure subscription required.</p>
             </div>
           </div>
         </section>
