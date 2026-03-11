@@ -1102,6 +1102,76 @@
         <section id="compute">
           <h2>3. Deploy and Manage Azure Compute</h2>
           <p class="weight">Exam weight: 20–25%</p>
+          <div class="collapsible-block" data-block="compute-vm-intro">
+            <h3 id="compute-vm-intro" class="block-title">Introduction to Azure virtual machines <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <div class="block-content">
+          <h4 id="vm-intro">Introduction</h4>
+          <p>Azure Virtual Machines (VMs) are on-demand, scalable compute resources with full control over configuration. Use VMs to migrate servers (e.g. mixed Windows/Linux, custom software) without buying hardware; Azure handles monitoring, security, and OS updates. This module covers: decisions before creating a VM, options to create and manage VMs, and extensions/services for administration. <strong>Learning objectives:</strong> Compile a checklist for creating a VM; describe options to create and manage VMs; describe other services to administer VMs.</p>
+
+          <h4 id="vm-checklist">Compile a checklist for creating an Azure VM</h4>
+          <p><strong>What is an Azure resource?</strong> A manageable item in Azure. A VM deployment typically includes: the VM; disks; virtual network; network interface (NIC); Network Security Group (NSG); public and/or private IP. Azure can create these or you supply existing ones; naming is important (Azure may derive names from the VM name).</p>
+
+          <h4 id="vm-network">The network</h4>
+          <p>Plan the network first: what does the server communicate with? Which ports are open? <strong>Virtual networks (VNets)</strong> provide private connectivity between VMs and other Azure services; same VNet can access each other; by default external services cannot. Use non-overlapping address ranges if connecting to other VNets or on-premises (e.g. 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16). <strong>Subnets</strong> — segment the VNet (e.g. 10.1.0.0 VMs, 10.2.0.0 back-end, 10.3.0.0 SQL). Azure reserves the first four and last address in each subnet. <strong>NSGs</strong> — control traffic to/from subnets and VMs (software firewall at NIC and subnet level).</p>
+
+          <h4 id="vm-plan-deploy">Plan each VM deployment</h4>
+          <p>Inventory the server: OS; disk space in use; data restrictions (legal, location); CPU, memory, disk I/O; burst traffic. Use this to answer Azure’s VM configuration questions.</p>
+
+          <h4 id="vm-name-location">VM name and location</h4>
+          <p><strong>VM name</strong> becomes the computer name (Linux: up to 64 characters; Windows: 15). It also identifies the Azure resource and is hard to change. Use a consistent naming convention, e.g.: Environment (dev, prod, QA) + Location (eus, jw) + Instance (01, 02) + Product/Service + Role (sql, web, messaging). Example: <code>deveus-webvm01</code>. <strong>Location (region)</strong> — choose for proximity to users, legal/compliance/tax, and note: region limits available hardware and affects price; compare regions if the workload is not location-bound.</p>
+
+          <h4 id="vm-size">Determine the size of the VM</h4>
+          <p>Azure offers VM sizes as predefined combinations of compute, memory, and storage. Choose by <strong>workload type</strong>:</p>
+          <table>
+            <tr><th>Option</th><th>Description</th></tr>
+            <tr><td>General purpose</td><td>Balanced CPU-to-memory; dev/test, small–medium DBs, low–medium traffic web servers.</td></tr>
+            <tr><td>Compute optimized</td><td>High CPU-to-memory; medium traffic web, network appliances, batch, app servers.</td></tr>
+            <tr><td>Memory optimized</td><td>High memory-to-CPU; relational DBs, caches, in-memory analytics.</td></tr>
+            <tr><td>Storage optimized</td><td>High disk throughput and I/O; DB workloads.</td></tr>
+            <tr><td>GPU</td><td>Graphics, video, deep learning training/inference.</td></tr>
+            <tr><td>High performance compute</td><td>Fastest CPUs; optional high-throughput networking.</td></tr>
+          </table>
+          <p>You can <strong>resize</strong> a VM (upgrade or downgrade) if the new size supports the current hardware; resize may require reboot. If the VM is <strong>stopped and deallocated</strong>, any size in the region can be selected. Resizing production VMs causes reboot and can change settings (e.g. IP).</p>
+
+          <h4 id="vm-billing">Parts of a VM and how they're billed</h4>
+          <table>
+            <tr><th>Resource</th><th>Description</th><th>Cost</th></tr>
+            <tr><td>Virtual network</td><td>VM communication</td><td>Virtual Network pricing</td></tr>
+            <tr><td>NIC</td><td>Connect to VNet</td><td>No separate charge; limit per VM size</td></tr>
+            <tr><td>Private/public IP</td><td>Network communication</td><td>IP Addresses pricing</td></tr>
+            <tr><td>NSG</td><td>Traffic filtering (e.g. ports)</td><td>No additional charge</td></tr>
+            <tr><td>OS disk + data disks</td><td>OS disk (e.g. 127 GiB); local temp disk (not charged); add data disks for app data</td><td>Managed Disks pricing (Premium/Standard SSD/HDD)</td></tr>
+            <tr><td>OS license</td><td>Windows/Linux</td><td>Varies by cores; Azure Hybrid Benefit can reduce</td></tr>
+          </table>
+          <p><strong>Pricing model:</strong> <strong>Compute</strong> — per-hour price, billed per-minute; no compute charge when VM is stopped and deallocated. Options: <strong>Pay as you go</strong> (no commitment; short-term or unpredictable workloads); <strong>Reserved VM Instances</strong> (1 or 3 years, up to ~72% savings; exchange/return for fee). <strong>Storage</strong> — charged separately; you pay for disks even when the VM is deallocated. Linux VMs often cheaper (no OS license in price).</p>
+
+          <h4 id="vm-storage-disks">Storage for the VM</h4>
+          <p>Every VM has at least two VHDs: OS disk and temporary storage. Add <strong>data disks</strong> for application data (VM size limits how many, often 2 per vCPU). Five disk types:</p>
+          <table>
+            <tr><th></th><th>Ultra</th><th>Premium SSD v2</th><th>Premium SSD</th><th>Standard SSD</th><th>Standard HDD</th></tr>
+            <tr><td>Scenario</td><td>IO-intensive (SAP HANA, top-tier DBs)</td><td>Production, low latency, high IOPS/throughput</td><td>Production, performance-sensitive</td><td>Web servers, dev/test</td><td>Backup, noncritical</td></tr>
+            <tr><td>Max size</td><td>65,536 GiB</td><td>65,536 GiB</td><td>32,767 GiB</td><td>32,767 GiB</td><td>32,767 GiB</td></tr>
+            <tr><td>Max throughput</td><td>4,000 MB/s</td><td>1,200 MB/s</td><td>900 MB/s</td><td>750 MB/s</td><td>500 MB/s</td></tr>
+            <tr><td>Max IOPS</td><td>160,000</td><td>80,000</td><td>20,000</td><td>6,000</td><td>2,000</td></tr>
+            <tr><td>OS disk?</td><td>No</td><td>No</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+          </table>
+
+          <h4 id="vm-os">Select an operating system</h4>
+          <p>Azure provides OS images (many Linux distros); OS choice can affect compute pricing (license bundled). Use <strong>Azure Marketplace</strong> for images with OS + software (e.g. WordPress stack). Create <strong>custom images</strong> or use an <strong>Azure Compute Gallery</strong> to manage and replicate images across regions.</p>
+
+          <h4 id="vm-exercise-portal">Exercise – Create a VM using the Azure portal</h4>
+          <p>Optional; requires an Azure subscription and a resource group. In the portal: Create a resource → Virtual machine. Configure basics: subscription, resource group, VM name (e.g. <code>test-ubuntu-cus-vm</code>), region, availability (e.g. No infrastructure redundancy), image (e.g. Ubuntu Server 24.04 LTS Gen2), size (e.g. Standard D2s v3), SSH public key auth, inbound ports (e.g. SSH 22). Review + create → Create; download private key when prompted. Use the VM’s public IP to connect via SSH. Other tabs expose more settings; see Create a VM modules for full details.</p>
+
+          <h4 id="vm-options">Options to create and manage VMs</h4>
+          <p><strong>Azure portal</strong> — Browser UI; guided wizards; good for learning and one-off creation. <strong>ARM templates</strong> — JSON defining resources; export from VM (Automation → Export template); parameterize (name, network, etc.) and redeploy for multiple environments; redeploy to update resources. <strong>Azure CLI</strong> — Cross-platform; e.g. <code class="cmd">az vm create</code> with resource group, name, image, admin, SSH keys. <strong>Azure PowerShell</strong> — e.g. <code class="cmd">New-AzVM</code> with resource group, name, location, image, VNet, NSG, public IP, SSH. <strong>Terraform</strong> — HCL config; Azure provider; plan then apply. <strong>REST API</strong> — HTTP operations on VM resources. <strong>Azure Client SDK</strong> — .NET, Java, Node.js, Python, etc.; higher-level than REST. <strong>VM extensions</strong> — Small apps for post-deploy config and automation. <strong>Azure Automation</strong> — Process automation (e.g. watcher tasks), configuration management (e.g. Configuration Manager), <strong>update management</strong> (assess, schedule, verify patches). <strong>Auto-shutdown</strong> — Schedule daily/weekly shutdown to save cost; set in VM blade → Operations → Auto-shutdown.</p>
+
+          <h4 id="vm-availability">Manage the availability of your Azure VMs</h4>
+          <p><strong>Availability</strong> = percentage of time a service is usable. Physical host failures or Azure maintenance can reboot VMs; Azure may move a VM to a healthy host (takes minutes). <strong>Availability Zones</strong> — Physically separate zones within a region (typically 3 per region); separate power, network, cooling; deploy replicated VMs across zones for resilience. <strong>Virtual Machine Scale Sets</strong> — Group of load-balanced VMs; auto scale in/out by demand or schedule; high availability; manage/config/update many VMs; pay per instance. Scale set VMs can be deployed across zones or regionally. <strong>Load balancer</strong> — Distribute traffic across VMs; combine with availability zones or sets for resilience; Standard tier includes Load Balancer. <strong>Azure Storage redundancy</strong> — Multiple copies for durability; choose replication (e.g. LRS, ZRS, GRS) per cost vs availability. <strong>Failover across locations</strong> — <strong>Azure Site Recovery</strong> replicates workloads to a secondary site; fail over if primary is down; fail back when restored; use Azure as DR site; test failovers without impacting production; recovery plans can include scripts and runbooks; supports Azure, Hyper-V, VMware, physical servers.</p>
+
+          <h4 id="vm-backup">Back up your virtual machines</h4>
+          <p><strong>Azure Backup</strong> — Backup as a service for physical and virtual machines (on-premises and cloud). Scenarios: files/folders on Windows; application-consistent snapshots (VSS); SQL Server, SharePoint, Exchange; native Azure VMs (Windows and Linux); Windows 10 and Linux clients. <strong>Advantages:</strong> Automatic storage management (pay-as-you-use); unlimited scaling; LRS or GRS; unlimited data transfer (no charge for transfer); encryption in transit and at rest; application-consistent recovery points; long-term retention. <strong>Components:</strong> Deploy the right component per what you protect — Azure Backup agent, System Center DPM, Azure Backup Server, or Azure Backup VM extension. Backups go to a <strong>Recovery Services vault</strong> (backed by Azure Storage); define backup policy (schedule, retention).</p>
+            </div>
+          </div>
           <div class="collapsible-block" data-block="compute-arm">
             <h3 id="compute-arm" class="block-title">ARM/Bicep automation <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
             <div class="block-content">
