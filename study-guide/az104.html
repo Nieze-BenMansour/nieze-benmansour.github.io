@@ -1301,9 +1301,102 @@
             </div>
           </div>
           <div class="collapsible-block" data-block="compute-appservice">
-            <h3 id="compute-appservice" class="block-title">App Service <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <h3 id="compute-appservice" class="block-title">Configure Azure App Service plans <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
             <div class="block-content">
-          <p class="placeholder">Content summary will be added from Microsoft Learn content.</p>
+          <h4 id="appservice-plans-intro">Implement Azure App Service plans</h4>
+          <p>In Azure App Service, an application runs in an <strong>App Service plan</strong>. An App Service plan defines a set of compute resources (similar to a “server farm”) for one or more web apps. As you add applications to the same plan, they share the same underlying compute resources in that plan.</p>
+
+          <h4 id="appservice-plan-settings">Things to know about App Service plans</h4>
+          <p>When you create an App Service plan in a region, Azure creates compute resources for that plan in the specified region. The apps placed into the plan run on those compute resources.</p>
+          <p>Each App Service plan defines:</p>
+          <ul>
+            <li><strong>Operating system:</strong> Linux or Windows.</li>
+            <li><strong>Region:</strong> Where the plan’s compute resources run.</li>
+            <li><strong>Pricing tier:</strong> Determines the App Service features and how much you pay. Available tiers depend on the OS selected at creation time.</li>
+            <li><strong>Number of VM instances:</strong> The scale capacity used by apps in the plan.</li>
+            <li><strong>Size of VM instances:</strong> CPU, memory, and storage characteristics.</li>
+          </ul>
+          <p>You can add new apps to an existing plan as long as the plan has enough remaining capacity.</p>
+
+          <h4 id="appservice-plan-considerations">Things to consider when using App Service plans</h4>
+          <ul>
+            <li><strong>Cost savings:</strong> Place multiple applications in the same plan to share compute resources.</li>
+            <li><strong>Multiple applications in one plan:</strong> One plan can support many apps. You must manage plan capacity carefully because apps share the same VMs.</li>
+            <li><strong>Plan capacity:</strong> Before adding an app, confirm the plan has enough CPU/memory/storage capacity for the new workload.</li>
+            <li><strong>Application isolation:</strong> Create a new plan when an app is resource-intensive, needs independent scaling, or must run in a different geographical region.</li>
+          </ul>
+          <p><strong>Important:</strong> Overloading an App Service plan can cause downtime for both new and existing applications.</p>
+
+          <h4 id="appservice-pricing">Determine Azure App Service plan pricing</h4>
+          <p>The pricing tier determines what App Service features you get and how much you pay. Examples include: Free, Shared, Basic, Standard, Premium, PremiumV2, PremiumV3, Isolated, and IsolatedV2.</p>
+          <p>How apps run and scale depends on the plan tier:</p>
+          <ul>
+            <li>Apps in the same plan share the same VM instances (example: if the plan uses five instances, every app in the plan runs on all five).</li>
+            <li>If the plan is configured for autoscaling, all apps in the plan scale together based on the autoscale settings.</li>
+          </ul>
+          <p>The plan tiers are grouped into three categories:</p>
+          <table>
+            <tr><th>Category</th><th>Description</th></tr>
+            <tr><td>Shared compute</td><td>Free and Shared tiers run apps on the same Azure VMs as other customers. CPU quotas are allocated per app. These tiers are intended for development and testing; resources cannot scale out.</td></tr>
+            <tr><td>Dedicated compute</td><td>Basic, Standard, Premium, PremiumV2, and PremiumV3 run apps on dedicated Azure VMs. Only apps in the same plan share the same dedicated compute resources. Higher tiers generally provide more instance capacity for scale-out.</td></tr>
+            <tr><td>Isolated</td><td>Isolated and IsolatedV2 tiers run dedicated VMs on dedicated Azure virtual networks. This provides network isolation plus dedicated compute, and supports the highest scale-out capabilities.</td></tr>
+          </table>
+          <p><strong>Examples by tier:</strong></p>
+          <ul>
+            <li><strong>Free and Shared:</strong> Development/testing only; no SLA; metered per application; multiple customers share the same VMs.</li>
+            <li><strong>Basic:</strong> Lower-traffic workloads; fewer advanced features; built-in network load balancing; supports Linux containers (Web App for Containers).</li>
+            <li><strong>Standard:</strong> Production workloads; built-in load balancing; includes autoscaling; supports Linux containers.</li>
+            <li><strong>Premium / Premium v2/v3:</strong> Enhanced performance; faster processors, SSD storage, and increased memory-to-core ratio (Premium v2). Supports higher scale via increased instance count.</li>
+            <li><strong>Isolated:</strong> Mission-critical workloads that require virtual network deployment. Uses an App Service Environment; dedicated environment in an Azure datacenter; can scale up to 100 instances.</li>
+          </ul>
+
+          <h4 id="appservice-task-select-plan">Task to be done: Select an App Service plan</h4>
+          <p>In the Azure portal, review available App Service plans and choose one based on hardware and feature requirements (CPU, memory, scaling instances, backups, staging slots, and zone redundancy). Tip: consider both hardware and features when selecting a plan.</p>
+
+          <h4 id="appservice-scale-methods">Scale up and scale out Azure App Service</h4>
+          <p>Azure App Service scaling uses two methods:</p>
+          <ul>
+            <li><strong>Scale up:</strong> Increase CPU, memory, and storage by changing the pricing tier of the App Service plan. This can provide additional features such as dedicated VMs, custom domains/certificates, staging slots, autoscaling, and more.</li>
+            <li><strong>Scale out:</strong> Increase the number of VM instances running your application. Scale-out instances can be configured manually or automatically (autoscale). With Isolated tiers using App Service Environments, scale-out can reach up to 100 instances.</li>
+          </ul>
+          <p><strong>Autoscale:</strong> When configured, autoscale automatically adjusts scale-out instance count based on rules and schedules.</p>
+          <p><strong>Things to consider:</strong></p>
+          <ul>
+            <li><strong>Manually adjust plan tiers:</strong> Start low (e.g. Free/Shared) and scale up as needed, then scale down when features are no longer required.</li>
+            <li><strong>Autoscale to support users and reduce costs:</strong> Keep serving during peaks and reduce capacity when load decreases.</li>
+            <li><strong>No redeployment required:</strong> Changing scale settings typically takes only seconds and applies to all apps in the plan without changing app code.</li>
+            <li><strong>Scale dependencies separately:</strong> App Service plan scaling does not automatically scale dependent services like Azure SQL Database or Azure Storage.</li>
+          </ul>
+
+          <h4 id="appservice-autoscale">Configure Azure App Service autoscale</h4>
+          <p>Autoscale helps you run the right amount of resources to handle application load while reducing costs by removing idle capacity. To use autoscale, define:</p>
+          <ul>
+            <li><strong>Minimum and maximum instance count</strong></li>
+            <li><strong>Rules</strong> (triggers + scale actions)</li>
+          </ul>
+          <p><strong>Key concepts:</strong></p>
+          <ul>
+            <li>Autoscale settings are grouped into <strong>profiles</strong>.</li>
+            <li>Autoscale rules include a <strong>trigger</strong> (metric-based or time-based) and a <strong>scale action</strong> (in or out).</li>
+            <li>When rule conditions are met, one or more scale actions are triggered.</li>
+            <li>Autoscale can send notifications via email and/or webhooks.</li>
+          </ul>
+          <p><strong>Trigger types:</strong></p>
+          <ul>
+            <li><strong>Metric-based:</strong> Scale based on measured load (e.g. CPU usage above a threshold). Common metrics include CPU time, average response time, and requests.</li>
+            <li><strong>Time-based (scheduled):</strong> Scale at predetermined times (e.g. at 8:00 AM on Saturdays in a time zone).</li>
+          </ul>
+          <p><strong>Things to consider when configuring autoscale:</strong></p>
+          <ul>
+            <li><strong>Minimum instance count:</strong> Ensure the app is always running even when there is no load.</li>
+            <li><strong>Maximum instance count:</strong> Cap cost by limiting the highest possible hourly usage.</li>
+            <li><strong>Adequate scale margin:</strong> Keep min and max different to avoid tight oscillation.</li>
+            <li><strong>Rule combinations:</strong> Use both scale-out and scale-in rules (increase and decrease) to prevent failures/performance issues and to avoid unnecessary cost.</li>
+            <li><strong>Metric statistics:</strong> Choose the correct statistic (Average, Minimum, Maximum, Total) for the metric.</li>
+            <li><strong>Default instance count:</strong> Choose a safe default because autoscale scales to this value when metrics are unavailable.</li>
+            <li><strong>Notifications:</strong> Configure notifications to stay aware of how load changes your capacity.</li>
+          </ul>
+          <p><strong>Example scale-in parameters:</strong> CPU threshold, number of instances to scale in by, <strong>query duration</strong> (lookback duration), and a <strong>schedule</strong> (repeat days and time range).</p>
             </div>
           </div>
         </section>
