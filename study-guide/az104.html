@@ -1301,7 +1301,7 @@
             </div>
           </div>
           <div class="collapsible-block" data-block="compute-appservice">
-            <h3 id="compute-appservice" class="block-title">Configure Azure App Service plans <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <h3 id="compute-appservice" class="block-title">Configure Azure App Service <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
             <div class="block-content">
           <h4 id="appservice-plans-intro">Implement Azure App Service plans</h4>
           <p>In Azure App Service, an application runs in an <strong>App Service plan</strong>. An App Service plan defines a set of compute resources (similar to a “server farm”) for one or more web apps. As you add applications to the same plan, they share the same underlying compute resources in that plan.</p>
@@ -1397,6 +1397,136 @@
             <li><strong>Notifications:</strong> Configure notifications to stay aware of how load changes your capacity.</li>
           </ul>
           <p><strong>Example scale-in parameters:</strong> CPU threshold, number of instances to scale in by, <strong>query duration</strong> (lookback duration), and a <strong>schedule</strong> (repeat days and time range).</p>
+
+          <h4 id="appservice-implement">Implement Azure App Service</h4>
+          <p>Azure App Service brings together everything you need to create websites, mobile backends, and web APIs for any platform or device. Apps run and scale easily in both Windows and Linux environments.</p>
+          <p>App Service provides Quickstarts for languages including ASP.NET, Java, Node.js, Python, and PHP.</p>
+          <h4 id="appservice-benefits">App Service benefits</h4>
+          <table>
+            <tr><th>Benefit</th><th>Description</th></tr>
+            <tr><td>Multiple languages and frameworks</td><td>First-class support for ASP.NET, Java, Node.js, PHP, and Python; can run PowerShell and scripts/executables as background services.</td></tr>
+            <tr><td>DevOps optimization</td><td>CI/CD with Azure DevOps, GitHub, Bitbucket, Docker Hub, and Azure Container Registry; promote updates through test and staging; manage apps with PowerShell or CLI.</td></tr>
+            <tr><td>Global scale with high availability</td><td>Manual or automatic scaling; host apps anywhere in the Microsoft global datacenter network; App Service SLA provides high availability.</td></tr>
+            <tr><td>Security and compliance</td><td>ISO, SOC, and PCI compliant; authenticate with Microsoft Entra ID or social logins (Google, Facebook, Twitter, Microsoft); use IP restrictions and manage service identities.</td></tr>
+            <tr><td>Application templates</td><td>Use marketplace templates such as WordPress, Joomla, and Drupal.</td></tr>
+            <tr><td>Visual Studio integration</td><td>Dedicated tools for creating, deploying, and debugging.</td></tr>
+            <tr><td>API and mobile features</td><td>Turn-key CORS for REST; support mobile authentication, offline sync, push notifications, and more.</td></tr>
+          </table>
+
+          <h4 id="appservice-create-app">Create an app with App Service</h4>
+          <p>Use Web Apps, Mobile Apps, or API Apps in Azure App Service, or create your own apps in the Azure portal.</p>
+          <p><strong>Common configuration settings:</strong></p>
+          <ul>
+            <li><strong>Name:</strong> Must be unique; identifies the app and location (example: <code>webappces1.azurewebsites.net</code>); map a custom domain if needed.</li>
+            <li><strong>Publish:</strong> App Service hosts your app as code or as a Docker container.</li>
+            <li><strong>Runtime stack:</strong> The language/SDK stack (e.g. .NET, Node.js, PHP, Python, Ruby). For Linux/custom containers you can set an optional startup command/file.</li>
+            <li><strong>Operating system:</strong> Linux or Windows.</li>
+            <li><strong>Region:</strong> Impacts which App Service plans are available.</li>
+            <li><strong>Pricing plan:</strong> Associates the app with an App Service plan to define available resources/features.</li>
+          </ul>
+
+          <h4 id="appservice-post-settings">Post-creation settings</h4>
+          <p>After creation you can configure additional settings such as deployment options and path mapping. Examples include:</p>
+          <ul>
+            <li><strong>Always On:</strong> Keeps the app loaded even with no traffic (required for continuous WebJobs or CRON triggered WebJobs).</li>
+            <li><strong>Session affinity:</strong> In multi-instance deployments, route clients to the same instance for the life of the session.</li>
+            <li><strong>HTTPS Only:</strong> Redirects all HTTP traffic to HTTPS.</li>
+          </ul>
+          <p><strong>Tip:</strong> Practice with the sandbox exercise "Create a web app in the Azure portal".</p>
+
+          <h4 id="appservice-ci-cd">Explore continuous integration and deployment</h4>
+          <p>App Service supports CI/CD out of the box using Azure DevOps, GitHub, Bitbucket, FTP, or a local Git repository. Connect a web app to a source and App Service deploys code changes automatically.</p>
+          <p>With Azure DevOps you can define build/release pipelines (compile, run tests, and deploy on each commit) with minimal manual administration.</p>
+          <p><strong>Deployment methods:</strong></p>
+          <ul>
+            <li><strong>Continuous deployment (CI/CD):</strong> Automated deployment directly from sources like GitHub or Bitbucket (push to production branch triggers deployment).</li>
+            <li><strong>Manual deployment:</strong> Push code manually using Remote Git or other options (for example, OneDrive or Dropbox).</li>
+          </ul>
+
+          <h4 id="appservice-slots">Create deployment slots</h4>
+          <p>You can deploy to a separate <strong>deployment slot</strong> (instead of the production slot) for web apps, Linux web apps, mobile backends, and API apps.</p>
+          <p><strong>Key characteristics:</strong></p>
+          <ul>
+            <li>Slots are live apps with their own hostnames.</li>
+            <li>Available in Standard, Premium, and Isolated tiers (not Free/Shared).</li>
+            <li>Different tiers provide different numbers of slots.</li>
+            <li>You can swap app content and configuration elements between slots and production.</li>
+          </ul>
+          <p><strong>Things to consider when using deployment slots:</strong></p>
+          <ul>
+            <li><strong>Validation:</strong> Deploy changes to a staging slot before swapping to production.</li>
+            <li><strong>Reduce downtime:</strong> Swap after warming up; eliminate downtime when swapping.</li>
+            <li><strong>Restore to last known good:</strong> Swap back quickly if the new version is not expected.</li>
+            <li><strong>Auto swap:</strong> Automate swaps from slot to production when running continuous deployment scenarios (not supported for Web Apps on Linux).</li>
+          </ul>
+
+          <h4 id="appservice-add-slots">Add deployment slots</h4>
+          <p>Slots are configured in the Azure portal. New slots can be empty or cloned. Slot settings fall into three categories:</p>
+          <ul>
+            <li>Slot-specific app settings and connection strings.</li>
+            <li>Continuous deployment settings (when enabled).</li>
+            <li>Authentication settings for the app (when enabled).</li>
+          </ul>
+          <p><strong>Swapped settings vs slot-specific settings:</strong></p>
+          <table>
+            <tr><th>Swapped settings</th><th>Slot-specific settings</th></tr>
+            <tr><td>Language stack and version, 32/64-bit; app settings (can be slot-specific); connection strings (can be slot-specific); mounted storage accounts (can be slot-specific); public certificates; WebJobs content; hybrid connections (feature not currently available); service endpoints (feature not currently available); CDN settings (when applicable); path mapping.</td><td>Custom domain names; nonpublic certificates and TLS/SSL settings; scale settings; Always On; IP restrictions; WebJobs schedulers; diagnostic settings; CORS; virtual network integration; managed identities.</td></tr>
+          </table>
+
+          <h4 id="appservice-secure">Secure your App Service app</h4>
+          <p>App Service provides built-in authentication and authorization so you can secure web apps, API apps, mobile backends, and Azure Functions apps with minimal or no code.</p>
+          <p><strong>How App Service secures apps:</strong></p>
+          <ul>
+            <li>The authentication/authorization module runs in the same environment as your app code but separately.</li>
+            <li>Configured using app settings (no SDKs and no changes to application code required).</li>
+            <li>It can authenticate users, validate/store/refresh tokens, manage the session, and inject identity information into request headers.</li>
+          </ul>
+          <p><strong>App security options:</strong></p>
+          <ul>
+            <li><strong>Allow Anonymous requests:</strong> Defer authorization to your app; App Service passes authentication information to your app for authenticated requests.</li>
+            <li><strong>Allow only authenticated requests:</strong> Redirect anonymous requests to the provider login endpoint; for native mobile apps an HTTP 401 is returned; suitable when the entire app requires authentication (not ideal for apps with public home pages).</li>
+            <li><strong>Logging and tracing:</strong> View authentication/authorization traces in log files (including references to <code>EasyAuthModule_32/64</code> in failed request tracing).</li>
+          </ul>
+
+          <h4 id="appservice-custom-domain">Create custom domain names</h4>
+          <p>Web apps get a default URL like <code>contoso.azurewebsites.net</code>. For production, you can map a custom domain (e.g. <code>www.contoso.com</code>) to the app.</p>
+          <p><strong>Why use a custom domain:</strong> branded address, trust/credibility, and better traffic management/security.</p>
+          <p><strong>Steps to configure:</strong></p>
+          <ul>
+            <li><strong>Reserve your domain name:</strong> Buy/register the domain in the Azure portal so it can be managed there.</li>
+            <li><strong>Create DNS records:</strong> Map the domain to your Azure app using either an <strong>A</strong> record (name -> IP) or a <strong>CNAME</strong> record (alias -> name). If the IP changes, CNAME is easier than A.</li>
+            <li><strong>Enable the custom domain:</strong> Use the Azure portal to validate and add the domain to the web app, then test before publishing.</li>
+          </ul>
+          <p><strong>Important:</strong> You need a paid tier of an App Service plan to map a custom DNS name.</p>
+
+          <h4 id="appservice-backup-restore">Back up and restore your App Service app</h4>
+          <p>Backup and Restore lets you create manual or scheduled backups. You can retain backups for a defined or indefinite period and restore your app/site to a previous snapshot by overwriting existing content or restoring to another app/site.</p>
+          <p><strong>Key points:</strong></p>
+          <ul>
+            <li>Requires Standard or Premium App Service plan.</li>
+            <li>Uses an Azure Storage account and container in the same subscription as the app.</li>
+            <li>Backs up app configuration settings, file content, and connected databases (SQL Database and Azure Database for MySQL/PostgreSQL).</li>
+            <li>Each backup is stored as a zip file (data) plus an XML manifest file.</li>
+            <li>Supports full backups (default) and partial backups (exclude specific files/folders).</li>
+            <li>Backups can be up to 10 GB, and you can browse backup files before restore.</li>
+            <li>If the destination storage account has a firewall enabled, it can block backups.</li>
+          </ul>
+
+          <h4 id="appservice-app-insights">Use Azure Application Insights</h4>
+          <p>Application Insights is an Azure Monitor feature for monitoring live applications. Integrate it with App Service to detect performance anomalies and support continuous improvement.</p>
+          <p><strong>Key characteristics:</strong> works across .NET, Node.js, and Java EE; supports hosted, hybrid, and on-prem scenarios; integrates with CI pipelines and development tools; integrates with Visual Studio App Center for mobile app monitoring.</p>
+          <p><strong>What to monitor with Application Insights:</strong></p>
+          <ul>
+            <li>Request rates, response times, and failure rates.</li>
+            <li>Dependency rates and failures (external services impacting performance).</li>
+            <li>Exceptions (server and browser) and stack traces.</li>
+            <li>Page views and load performance.</li>
+            <li>User and session counts.</li>
+            <li>Performance counters (CPU, memory, network, etc.).</li>
+            <li>Host diagnostics (Docker or Azure diagnostics).</li>
+            <li>Diagnostic trace logs and custom events/metrics (business KPIs).</li>
+          </ul>
+          <p><strong>Tip:</strong> Extend learning using the "Troubleshoot solutions by using Application Insights" training module.</p>
             </div>
           </div>
         </section>
