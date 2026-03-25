@@ -1295,9 +1295,98 @@
             </div>
           </div>
           <div class="collapsible-block" data-block="compute-containers">
-            <h3 id="compute-containers" class="block-title">Containers <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <h3 id="compute-containers" class="block-title">Configure Azure Container Instances <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
             <div class="block-content">
-          <p class="placeholder">Content summary will be added from Microsoft Learn content.</p>
+          <h4 id="containers-vm-compare">Compare containers to virtual machines</h4>
+          <p>Hardware virtualization lets you run multiple isolated operating systems on the same physical hardware. <strong>Containers</strong> represent the next stage of virtualization of computing resources by virtualizing the OS environment so multiple applications can run with isolation, while sharing the host OS kernel.</p>
+
+          <table>
+            <tr><th>Compare</th><th>Containers</th><th>Virtual machines</th></tr>
+            <tr><td>Isolation</td><td>Lightweight isolation from the host and other containers; not as strong a security boundary as VMs.</td><td>Complete isolation from host OS and other VMs; stronger boundary for competing workloads.</td></tr>
+            <tr><td>Operating system</td><td>Runs user-mode portion of an OS; tailored to needed services; fewer system resources.</td><td>Runs full OS including kernel; requires more CPU, memory, and storage.</td></tr>
+            <tr><td>Deployment</td><td>Deploy individual containers with Docker; deploy multi-container sets using an orchestrator like AKS.</td><td>Deploy individual VMs with tools like Windows Admin Center/Hyper-V Manager; manage many VMs with automation/tools.</td></tr>
+            <tr><td>Persistent storage</td><td>Local storage can use Azure Disks (single node); shared storage can use Azure Files (SMB shares).</td><td>Local storage uses VHDs; shared storage can use SMB file shares.</td></tr>
+            <tr><td>Fault tolerance</td><td>If a cluster node fails, the orchestrator recreates containers on another node.</td><td>VMs can fail over and restart on another server; OS restarts on the new host.</td></tr>
+          </table>
+
+          <h4 id="containers-when-use">Things to consider when using containers</h4>
+          <ul>
+            <li><strong>Flexibility and speed:</strong> Develop and share containerized application code quickly.</li>
+            <li><strong>Testing:</strong> Container-based builds make app testing simpler.</li>
+            <li><strong>App deployment:</strong> Streamlined and accelerated deployments.</li>
+            <li><strong>Workload density:</strong> Run more workloads per host for better resource utilization.</li>
+          </ul>
+
+          <h4 id="aci-overview">Review Azure Container Instances</h4>
+          <p>Azure Container Instances (ACI) is the fastest and simplest way to run a container in Azure. It runs containers without managing virtual machines or adopting a higher-level container orchestration service. ACI is ideal for workloads that can run in isolated containers.</p>
+
+          <h4 id="aci-benefits">Things to know about Azure Container Instances</h4>
+          <ul>
+            <li><strong>Fast startup times:</strong> Containers start in seconds without deploying VMs.</li>
+            <li><strong>Public IP connectivity and DNS names:</strong> Expose containers directly with an IP address and FQDN.</li>
+            <li><strong>Custom sizes:</strong> Container nodes can be scaled dynamically to meet demand.</li>
+            <li><strong>Persistent storage:</strong> Mount Azure Files shares into containers.</li>
+            <li><strong>Linux and Windows containers:</strong> Specify OS type when creating container groups.</li>
+            <li><strong>Coscheduled groups:</strong> Multi-container groups share host machine resources.</li>
+            <li><strong>Virtual network deployment:</strong> Deploy ACI into an Azure virtual network.</li>
+          </ul>
+
+          <h4 id="aci-images">Understand container images</h4>
+          <p>Containers are created from <strong>container images</strong>. An image is a lightweight, standalone, executable package that includes:</p>
+          <ul>
+            <li><strong>Code</strong> (application source)</li>
+            <li><strong>Runtime</strong> (environment required to execute)</li>
+            <li><strong>System tools</strong></li>
+            <li><strong>System libraries</strong></li>
+            <li><strong>Settings</strong> (application-specific configuration)</li>
+          </ul>
+          <p>When you run an image, you get a running <strong>container</strong> (the image at runtime). Images are portable across environments, which helps containers run consistently.</p>
+
+          <h4 id="aci-container-groups">Implement container groups</h4>
+          <p>The top-level resource in ACI is the <strong>container group</strong>. A container group is a collection of containers scheduled on the same host machine. Containers in a group share a lifecycle, local network, and storage volumes.</p>
+
+          <h4 id="aci-group-details">Things to know about container groups</h4>
+          <ul>
+            <li>A container group is similar to a Kubernetes pod: a pod can contain multiple containers; containers can share related resources.</li>
+            <li>ACI allocates resources for a multi-container group by adding the resource requests of all containers (CPU, memory, GPUs).</li>
+            <li>Multi-container groups can be deployed using <strong>ARM templates</strong> or <strong>YAML files</strong> (YAML is common for container-only deployments).</li>
+            <li>Container groups can share an external IP address, exposed ports, and a DNS label with an FQDN.</li>
+            <li>To allow external access, you must expose the port on the container and the group.</li>
+            <li>Port mapping is not supported because containers in a group share a port namespace.</li>
+            <li>When a container group is deleted, its IP address and FQDN are released.</li>
+          </ul>
+
+          <h4 id="aci-multi-container-example">Configuration example</h4>
+          <p>Example multi-container group (two containers): the group runs on a single host, has a DNS name label, and exposes a single public IP with one exposed port. One container listens on port 80 (web), and the other listens on port 1433. The group includes two Azure Files file shares mounted as volumes so each container can access its data.</p>
+
+          <h4 id="aci-group-scenarios">Things to consider when using container groups</h4>
+          <ul>
+            <li><strong>Web app updates:</strong> Use multi-container groups to separate concerns (for example, one container serves the web app while another pulls content from source control).</li>
+            <li><strong>Log data collection:</strong> One container outputs logs/metrics while another ships them to long-term storage.</li>
+            <li><strong>App monitoring:</strong> A monitoring container periodically requests the app container to verify it is running; alert when issues are detected.</li>
+            <li><strong>Front-end and back-end:</strong> Run a front-end container and a back-end service container together in one group.</li>
+          </ul>
+
+          <h4 id="aca-review">Review Azure Container Apps</h4>
+          <p>Azure Container Apps (ACA) is a serverless platform for running containerized applications. It reduces infrastructure and orchestration management overhead. It is commonly used for:</p>
+          <ul>
+            <li>Deploying API endpoints</li>
+            <li>Hosting background processing jobs</li>
+            <li>Event-driven processing</li>
+            <li>Running microservices</li>
+          </ul>
+          <p>Container Apps can scale based on HTTP traffic, event-driven processing, CPU/memory load, and any KEDA-supported scaler, including scale to zero.</p>
+
+          <h4 id="containers-compare-solutions">Compare container management solutions</h4>
+          <table>
+            <tr><th>Feature</th><th>Azure Container Apps (ACA)</th><th>Azure Kubernetes Service (AKS)</th></tr>
+            <tr><td>Overview</td><td>Serverless container platform that simplifies deployment by abstracting infrastructure for microservices-based apps.</td><td>Managed Kubernetes cluster; suitable for complex applications requiring orchestration.</td></tr>
+            <tr><td>Deployment</td><td>PaaS experience with quick deployment and management.</td><td>More control and customization; Kubernetes-first.</td></tr>
+            <tr><td>Management</td><td>Simplified PaaS experience built on Kubernetes technology.</td><td>More granular control; best for teams with Kubernetes expertise.</td></tr>
+            <tr><td>Scalability</td><td>HTTP autoscaling and event-driven scaling.</td><td>Horizontal pod autoscaling and cluster autoscaling.</td></tr>
+            <tr><td>Use cases</td><td>Microservices and serverless containerized apps that benefit from rapid scaling and simplified ops.</td><td>Complex, long-running applications that require full Kubernetes features.</td></tr>
+            <tr><td>Integration</td><td>Integrates with Logic Apps, Functions, and Event Grid for event-driven architectures.</td><td>Integrates with Azure Policy for Kubernetes, Azure Monitor, and Azure Defender for Kubernetes.</td></tr>
+          </table>
             </div>
           </div>
           <div class="collapsible-block" data-block="compute-appservice">
