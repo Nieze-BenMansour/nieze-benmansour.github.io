@@ -1874,6 +1874,190 @@
           <p><strong>When not to use:</strong> Network Watcher provides intermediate diagnostic capability; for advanced features you may need third-party tools. It is for <strong>IaaS on VNets</strong> only—not for diagnosing <strong>PaaS</strong> or <strong>web analytics</strong> connectivity; use Azure status or service health for those.</p>
             </div>
           </div>
+          <div class="collapsible-block" data-block="monitor-vms-azure-monitor">
+            <h3 id="monitor-vms-azure-monitor" class="block-title">Monitor your Azure virtual machines with Azure Monitor <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <div class="block-content">
+          <h4 id="monitor-vm-azure-monitor-intro">Monitoring for Azure VMs</h4>
+          <p>Azure Monitor is a comprehensive monitoring solution for collecting, analyzing, and responding to telemetry from Azure and non-Azure resources, including VMs. Azure Monitor has two main monitoring data types: <strong>Metrics</strong> and <strong>Logs</strong>.</p>
+          <p><strong>Metrics</strong> are numerical values collected at intervals (for example, CPU, resource utilization, error counts, response times). Azure automatically collects a predefined set of VM host metrics and retains data for <strong>93 days</strong> with some exceptions.</p>
+          <p><strong>Logs</strong> are timestamped system events that include structured or free-form data. Azure automatically records activity logs for Azure resources, while <strong>Azure Monitor Logs</strong> collects additional logs into a <strong>Log Analytics workspace</strong> for querying and analysis.</p>
+
+          <h4 id="monitor-vm-layers">VM monitoring layers</h4>
+          <p>VM monitoring typically spans these layers:</p>
+          <ul>
+            <li><strong>Host VM:</strong> the VM host’s compute, storage, and network resources.</li>
+            <li><strong>Guest OS:</strong> operating system and VM client workloads.</li>
+            <li><strong>Client workloads and applications:</strong> apps running inside the VM.</li>
+          </ul>
+
+          <h4 id="monitor-vm-host-monitoring">Host VM monitoring</h4>
+          <p><strong>VM host metrics</strong> measure technical aspects such as processor utilization and whether the machine is running. Use these metrics to trigger alerts, identify trends, and manage costs (for example, resize VMs based on usage patterns).</p>
+          <p>On the VM Overview page, Azure provides built-in graphs for common host metrics:</p>
+          <ul>
+            <li>VM availability</li>
+            <li>CPU usage % (average)</li>
+            <li>OS disk usage (total)</li>
+            <li>Network operations (total)</li>
+            <li>Disk operations/sec (average)</li>
+          </ul>
+
+          <h4 id="monitor-vm-metrics-explorer">Recommended alert rules and metrics graphs</h4>
+          <p><strong>Recommended alert rules</strong> are predefined alert rules based on common host metrics (CPU, memory, disk, network, and VM availability). You can enable and configure them when creating a VM, or afterwards from the VM monitoring pages using Azure Monitor Alerts.</p>
+          <p>For customized graphs and deeper investigation, use <strong>Metrics Explorer</strong> to plot multiple metrics, compare metrics across VMs, choose flexible time ranges, and send graphs to workbooks or dashboards.</p>
+
+          <h4 id="monitor-vm-activity-logs">Activity logs and boot diagnostics</h4>
+          <p><strong>Activity logs</strong> are automatically recorded for Azure VMs (for example, VM startup or modifications). You can send activity logs to:</p>
+          <ul>
+            <li>Azure Monitor Logs (query/alerting with up to two years retention)</li>
+            <li>Azure Storage (long-term archiving)</li>
+            <li>Azure Event Hubs (forward outside Azure)</li>
+          </ul>
+          <p><strong>Boot diagnostics</strong> are host logs used to troubleshoot boot issues. You can enable boot diagnostics during VM creation or afterwards. Once enabled, you can view hypervisor screenshots and serial console logs (Linux) stored in a managed storage account.</p>
+
+          <h4 id="monitor-vm-guest-app-monitoring">Guest OS, client workload, and application monitoring</h4>
+          <p>To collect metrics and logs from inside the VM (guest OS, workloads, and applications), install the <strong>Azure Monitor Agent</strong> and configure a <strong>Data Collection Rule (DCR)</strong>.</p>
+          <p>DCRs define what data to collect and where to send it:</p>
+          <ul>
+            <li>Send metrics/performance counters to Azure Monitor Logs or Azure Monitor Metrics.</li>
+            <li>Send event logs to Azure Monitor Logs.</li>
+          </ul>
+          <p><strong>Key difference:</strong> Azure Monitor Metrics primarily stores metrics data, while Azure Monitor Logs can store both metrics and event logs.</p>
+
+          <h4 id="monitor-vm-insights">VM insights</h4>
+          <p><strong>VM insights</strong> is an Azure Monitor feature that helps you quickly get started monitoring VM clients (guest OS + workloads + applications). It provides:</p>
+          <ul>
+            <li>Simple Azure Monitor Agent onboarding</li>
+            <li>A preconfigured DCR that collects common Windows/Linux performance counters</li>
+            <li>Prebuilt performance charts/workbooks</li>
+            <li>Optional processes/dependencies collection and a dependency map</li>
+          </ul>
+          <p>You can view curated VM insights workbooks directly from the VM’s Insights page and customize time ranges and workbook views. The Map tab visualizes dependencies by discovering process groups and active network connections.</p>
+
+          <h4 id="monitor-vm-client-event-logs">Client event log data</h4>
+          <p>For log data (for example, syslog on Linux), you create additional DCRs for the event logs you need. Log data is stored in a Log Analytics workspace and queried with <strong>Kusto Query Language (KQL)</strong>.</p>
+
+          <h4 id="monitor-vm-check-knowledge-1">Check your knowledge</h4>
+          <p><strong>1.</strong> What are the two main types of monitoring data that Azure Monitor collects for Azure VMs?</p>
+          <ul>
+            <li>Metrics and logs.</li>
+            <li>VM insights and Alerts.</li>
+            <li>Workbooks and Workspaces.</li>
+          </ul>
+          <p><strong>2.</strong> What are the layers of a VM that need to be monitored?</p>
+          <ul>
+            <li>VM host OS, SKU, and disks.</li>
+            <li>VM host, guest OS, client workloads, and applications.</li>
+            <li>Subscription, resource group, and VM.</li>
+          </ul>
+
+          <h4 id="monitor-vm-host-data">Monitor VM host data</h4>
+          <p>In the portal, create a Linux VM and enable built-in monitoring features:</p>
+          <ul>
+            <li>On the <strong>Monitoring</strong> tab, enable <strong>recommended alert rules</strong>.</li>
+            <li>Enable <strong>Boot diagnostics</strong> with a managed storage account.</li>
+            <li>Do not enable deprecated Linux Diagnostics Agent (OS guest diagnostics).</li>
+          </ul>
+          <p>After the VM starts, Azure automatically begins collecting basic host metrics and activity logs.</p>
+
+          <h4 id="monitor-vm-view-built-in-graphs">View built-in metrics graphs</h4>
+          <p>On the VM Overview page (Monitoring tab), check the platform metrics graphs under Platform metrics, such as VM availability, CPU percentage (average), OS disk usage, network operations, and disk operations/sec. By default, guest OS metrics are not collected until you enable VM insights.</p>
+
+          <h4 id="monitor-vm-view-activity-log">View the activity log</h4>
+          <p>Use the VM left navigation <strong>Activity log</strong> to view VM startup and modification events. You can also retrieve entries using PowerShell or Azure CLI.</p>
+
+          <h4 id="monitor-vm-view-boot-diags">View boot diagnostics</h4>
+          <p>From the VM’s <strong>Boot diagnostics</strong> page, view hypervisor screenshots and serial logs (Linux) to troubleshoot startup issues.</p>
+
+          <h4 id="monitor-vm-check-knowledge-2">Check your knowledge</h4>
+          <p><strong>1.</strong> What do you need to do to enable recommended alert rules when you create a VM?</p>
+          <ul>
+            <li>Nothing, they're enabled by default.</li>
+            <li>Go to Alerts and select Create.</li>
+            <li>Select Enable recommended alert rules on the Monitoring tab.</li>
+          </ul>
+          <p><strong>2.</strong> Which metrics graph isn’t available by default on the Monitoring tab when you create a VM?</p>
+          <ul>
+            <li>VM Availability</li>
+            <li>Guest OS Available Memory</li>
+            <li>Percentage CPU (average)</li>
+          </ul>
+
+          <h4 id="monitor-vm-metrics-explorer-host">Use Metrics Explorer to view detailed host metrics</h4>
+          <p>Metrics Explorer helps you build custom metric charts beyond the built-in graphs.</p>
+          <p>Key chart inputs include:</p>
+          <ul>
+            <li><strong>Scope</strong> (VM name/resource(s))</li>
+            <li><strong>Metric Namespace</strong> (sometimes required by resource type)</li>
+            <li><strong>Metric</strong></li>
+            <li><strong>Aggregation</strong> (for example: Count, Average (Avg), Maximum (Max), Minimum (Min), Sum)</li>
+            <li><strong>Time range</strong> (flexible windows and granularity)</li>
+          </ul>
+          <p>Example task: plot VM <strong>Percentage CPU</strong> (use <strong>Max</strong> aggregation) and add <strong>Inbound Flows</strong> (Avg) for the last 30 minutes.</p>
+
+          <h4 id="monitor-vm-check-knowledge-3">Check your knowledge</h4>
+          <p><strong>1.</strong> How do you add another metric to an existing Metrics Explorer graph?</p>
+          <ul>
+            <li>Select the metric from the dropdown list in the Metric field.</li>
+            <li>Select New chart.</li>
+            <li>Select Add metric.</li>
+          </ul>
+          <p><strong>2.</strong> Which parameter isn’t included in the dropdown fields when you define a Metrics Explorer graph?</p>
+          <ul>
+            <li>Metric Namespace</li>
+            <li>Time range</li>
+            <li>Aggregation</li>
+          </ul>
+
+          <h4 id="monitor-vm-insights-enable">Collect client performance counters by using VM insights</h4>
+          <p>To monitor guest OS/workloads, enable <strong>VM insights</strong>. VM insights installs the Azure Monitor Agent, creates a DCR that collects predefined performance counters, and presents the data in curated workbooks.</p>
+          <p>Enable VM insights from the VM’s left navigation under <strong>Monitoring</strong> → <strong>Insights</strong> → Enable, then configure the created DCR and (default or custom) Log Analytics workspace. After deployment, confirm the Azure Monitor Agent is installed under Extensions + applications. Guest OS metrics then appear on the Monitoring tab.</p>
+
+          <h4 id="monitor-vm-insights-view">View VM insights</h4>
+          <p>Use the Insights page to view:</p>
+          <ul>
+            <li><strong>Performance</strong> (prebuilt performance workbook; customize time range)</li>
+            <li><strong>View Workbooks</strong> and workbook gallery/templates</li>
+            <li><strong>Map</strong> (dependency map when enabled)</li>
+          </ul>
+
+          <h4 id="monitor-vm-check-knowledge-4">Check your knowledge</h4>
+          <p><strong>1.</strong> What capabilities does enabling VM insights provide?</p>
+          <ul>
+            <li>Prebuilt client performance workbooks and guest OS metrics.</li>
+            <li>Graphs that show several host metrics on one graph with customizable timeframes.</li>
+            <li>Azure VM log collection and analytics.</li>
+          </ul>
+          <p><strong>2.</strong> What's a quick way to install the Azure Monitor Agent to collect guest OS metrics?</p>
+          <ul>
+            <li>Install the diagnostics extension under Diagnostics settings.</li>
+            <li>You don't have to install or enable anything to use the Azure Monitor Agent to collect guest OS metrics.</li>
+            <li>Select the Azure Monitor Agent when you enable VM insights.</li>
+          </ul>
+
+          <h4 id="monitor-vm-client-event-logs-collect">Collect VM client event logs</h4>
+          <p>To analyze root causes, collect event log data using a DCR. Example task: create a DCR to collect Linux <strong>Syslog</strong> and query it in Log Analytics using KQL.</p>
+          <p>High-level steps:</p>
+          <ul>
+            <li>Create a <strong>Data Collection Endpoint</strong> (DCE), then</li>
+            <li>Create a <strong>Data Collection Rule</strong> (DCR) for Linux syslog targeting your VM and sending to a Log Analytics workspace.</li>
+            <li>View data from the VM’s <strong>Logs</strong> page by running a KQL query such as <code>Syslog</code>.</li>
+          </ul>
+
+          <h4 id="monitor-vm-check-knowledge-5">Check your knowledge</h4>
+          <p><strong>1.</strong> How can you collect event log data from your VMs?</p>
+          <ul>
+            <li>Create a DCR.</li>
+            <li>Enable VM insights.</li>
+            <li>Enable boot diagnostics.</li>
+          </ul>
+          <p><strong>2.</strong> How can you view log data collected by a DCR?</p>
+          <ul>
+            <li>In the Monitoring tab of your VM Overview page.</li>
+            <li>By selecting Data Collection Rules in Azure Monitor.</li>
+            <li>By using a KQL query in your Log Analytics workspace.</li>
+          </ul>
+            </div>
+          </div>
           <div class="collapsible-block" data-block="monitor-backup">
             <h3 id="monitor-backup" class="block-title">Backup and recovery <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
             <div class="block-content">
