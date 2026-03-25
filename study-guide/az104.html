@@ -1877,7 +1877,220 @@
           <div class="collapsible-block" data-block="monitor-backup">
             <h3 id="monitor-backup" class="block-title">Backup and recovery <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
             <div class="block-content">
-          <p class="placeholder">Content summary will be added from Microsoft Learn content.</p>
+          <h4 id="backup-intro-what">What is Azure Backup?</h4>
+          <p>Azure Backup provides simple, secure, and cost-effective solutions to back up data and recover it from Azure. It is designed to protect enterprise workloads from data loss while keeping operational effort low.</p>
+
+          <h4 id="backup-definition">Azure Backup definition</h4>
+          <p>Azure Backup is an Azure service that provides cost-effective, secure, and zero-infrastructure backup solutions for Azure-managed data assets. Centralized management makes it easy to define backup policies and protect a wide range of workloads, including:</p>
+          <ul>
+            <li>Azure virtual machines (VMs) and Azure managed disks</li>
+            <li>Azure Files shares</li>
+            <li>SQL Server and SAP HANA databases running on Azure VMs</li>
+            <li>Azure Blobs</li>
+            <li>Azure Database for PostgreSQL (and Flexible/other offerings)</li>
+            <li>Azure Database for MySQL (Flexible servers)</li>
+            <li>Azure Kubernetes clusters (workload-level support)</li>
+            <li>On-premises files, folders, and system state</li>
+          </ul>
+
+          <h4 id="backup-when-to-use">When to use Azure Backup</h4>
+          <p>Use Azure Backup when you need enterprise-class, centralized backup management across your organization and you want self-service backup/restore to handle issues such as corruption or rogue-admin scenarios. It is also a strong fit for meeting compliance requirements with consistent retention policies.</p>
+
+          <h4 id="backup-key-features">Key features</h4>
+          <table>
+            <tr><th>Feature</th><th>Description</th><th>Usage</th></tr>
+            <tr><td>Zero-infrastructure backup solution</td><td>No backup server or additional infrastructure to manage; Azure Backup automatically manages and scales backup storage.</td><td>Eliminates capital expenses and reduces operational overhead.</td></tr>
+            <tr><td>At-scale management</td><td>Manage backup estate from <strong>Backup Center</strong> and automate using APIs, PowerShell, and Azure CLI.</td><td>Helps you discover, govern, monitor, operate, and optimize backup management in one place.</td></tr>
+            <tr><td>Security</td><td>Built-in encryption and secure connectivity patterns (for example, private endpoints) plus alerts.</td><td>Backups are protected against ransomware, malicious admins, and accidental deletions.</td></tr>
+          </table>
+
+          <h4 id="backup-rto-rpo">How do Recovery Time Objective (RTO) and Recovery Point Objective (RPO) work?</h4>
+          <p><strong>RTO</strong> is the target time within which a business process must be restored after a disaster occurs (for example, tolerate up to 4 hours of downtime => RTO = 4 hours).</p>
+          <p><strong>RPO</strong> is the maximum amount of data loss measured in time (for example, back up every hour => RPO = 1 hour). When you set RTO to 3 hours, you aim to restore access within 3 hours to reduce operational impact.</p>
+
+          <h4 id="backup-how-it-works">How Azure Backup works</h4>
+          <p>Azure Backup protects workloads by combining a workload integration layer (backup extensions), data plane storage tiers, security/availability controls, and a centralized management plane (vaults and Backup Center).</p>
+
+          <h4 id="backup-what-is-backed-up">What data is backed up and how?</h4>
+          <p>At the simplest level, Azure Backup backs up data, machine state, and workloads from on-premises machines and Azure VM instances to Azure cloud storage. Backed-up data is stored in <strong>Recovery Services vaults</strong> and <strong>Backup vaults</strong>.</p>
+          <p>Common approaches:</p>
+          <ul>
+            <li><strong>On-premises Windows machines:</strong> use the Azure Backup MARS agent to back up directly to Azure, or back up to a backup server such as DPM or MABS, then back up that server to a Recovery Services vault.</li>
+            <li><strong>Azure VMs:</strong> Azure Backup installs a <strong>backup extension</strong> on the VM to back up the VM; if you only need files/folders, use MARS-style file backup for those scenarios.</li>
+          </ul>
+
+          <h4 id="backup-supported-types">Supported backup types</h4>
+          <p>Azure Backup supports full backups and incremental backups. The first backup is a full backup; subsequent backups capture only data blocks that changed since the previous backup (incremental).</p>
+          <p>For SQL Server, Azure Backup supports the following backup types:</p>
+          <table>
+            <tr><th>Type</th><th>Description</th><th>Usage</th></tr>
+            <tr><td>Full</td><td>Backs up the entire database and includes enough logs to recover that data.</td><td>Trigger up to one full backup per day (can be daily or weekly).</td></tr>
+            <tr><td>Differential</td><td>Based on the most recent full backup; captures data changed since that full backup.</td><td>Trigger up to one differential backup per day. Cannot run full and differential on the same day.</td></tr>
+            <tr><td>Multiple backups per day</td><td>Hourly backups for Azure VMs with enhanced scheduling.</td><td>Minimum RPO of 4 hours and maximum RPO of 24 hours; Enhanced backup policy supports 4/6/8/12/24 hour schedules.</td></tr>
+            <tr><td>Selective disk backup</td><td>Backup and restore a subset of attached data disks (for instant restore and vault-tier restore).</td><td>Use Enhanced backup policy for selectively backing up critical disks (and potentially backing up OS disk only to reduce cost).</td></tr>
+            <tr><td>Transaction log</td><td>Enables point-in-time restoration up to a specific second.</td><td>Configure transactional log backups every 15 minutes (max).</td></tr>
+          </table>
+
+          <h4 id="backup-extension-layer">Workload integration layer - Backup Extension</h4>
+          <p>A backup extension is installed per workload type on the source VM or a worker VM. At backup time (as defined by the backup policy), the extension generates backup data, such as:</p>
+          <ul>
+            <li><strong>Storage:</strong> snapshots when backing up Azure VMs or Azure Files</li>
+            <li><strong>Stream backup:</strong> stream-based backups for databases such as SQL Server or SAP HANA</li>
+          </ul>
+          <p>The backup data is transferred to Azure Backup managed storage in the data plane through secure Azure networks (using patterns such as NSGs, firewalls, and private endpoints).</p>
+
+          <h4 id="backup-data-plane-tiers">Data plane - Access tiers</h4>
+          <p>Azure Backup stores data in three access tiers:</p>
+          <ul>
+            <li><strong>Snapshot tier:</strong> workload-specific snapshot storage used in the first phase of a VM backup. Restores are faster because snapshots are retained locally in the customer's subscription in a specified resource group.</li>
+            <li><strong>Vault-standard tier:</strong> online storage in Microsoft-managed tenant storage (autoscaling backup storage). Adds an extra layer of protection; backup data remains available even if the original data source is deleted or compromised.</li>
+            <li><strong>Archive tier:</strong> long-term retention (LTR) backup data stored for compliance needs, with less frequent access.</li>
+          </ul>
+          <p>All tiers have different RTO characteristics and pricing. Some workloads supported by snapshot tier keep a copy in both snapshot and vault-standard tiers.</p>
+
+          <h4 id="backup-data-plane-availability-security">Data plane - Availability and security</h4>
+          <p>Backup data is replicated across zones or regions based on the redundancy you choose (for example, <strong>LRS</strong>, <strong>GRS</strong>, or <strong>ZRS</strong>). Azure keeps backups safe by encrypting data and using Azure RBAC to control who can perform backup and restore operations.</p>
+          <p><strong>Protection against malicious deletion:</strong> Azure Backup includes soft delete for backups. If a backup is deleted, it is retained for 14 days (free of charge) so you can recover if needed.</p>
+
+          <h4 id="backup-management-plane">Management plane - Recovery Services vault / Backup vault and Backup Center</h4>
+          <p>Azure Backup uses Recovery Services vaults and Backup vaults to orchestrate and manage backups, and to store backup data. The vault provides the interface to manage backup policies, triggers, and retention.</p>
+          <p><strong>Backup Center</strong> gives a single pane of glass to manage backups across multiple workload types, vaults, subscriptions, regions, and Azure Lighthouse tenants.</p>
+
+          <h4 id="backup-apply-criteria">When to use Azure Backup (decision criteria)</h4>
+          <p>Use Azure Backup when you need secure and zero-infrastructure backup solutions for Azure-managed data assets. Key evaluation criteria include:</p>
+          <table>
+            <tr><th>Criteria</th><th>Consideration</th></tr>
+            <tr><td>Azure workloads</td><td>Azure VMs, Azure managed disks, SQL Server on Azure VMs, SAP HANA on Azure VMs, Azure Blobs, Azure Files, Azure Database for PostgreSQL.</td></tr>
+            <tr><td>Compliance</td><td>Backup policies with long-term retention across multiple zones/regions.</td></tr>
+            <tr><td>Operational recoveries</td><td>Self-service backup and restore for app administrators handling accidental deletion/corruption.</td></tr>
+          </table>
+          <p><strong>Example:</strong> SQL Server on three Azure VMs, with up to 10-year retention for compliance and monitoring needs. Note that Azure Backup generally does not support cross-region backup for most workloads, but it can support cross-region restore in a paired secondary region.</p>
+          <p>For SQL Server on Azure VMs, Azure Backup can back up:</p>
+          <ul>
+            <li><strong>Entire VM</strong> using backup extensions</li>
+            <li><strong>Files/folders/system state</strong> using the MARS agent</li>
+            <li><strong>SQL-specific stream-based backups</strong> for workload-aware full/differential/log backups with frequent (for example, 15-minute) RPO and point-in-time restore</li>
+          </ul>
+
+          <h4 id="backup-compliance-monitoring">Does Azure Backup simplify monitoring and administration?</h4>
+          <p>Azure Backup integrates with Log Analytics for monitoring and reports via Workbooks. It also provides built-in job monitoring for backup-related operations scoped to the vault. For large estates, Backup Explorer provides aggregated operational visibility across the entire backup estate, supporting drill-down and troubleshooting.</p>
+
+          <h4 id="vmbackup-scenarios-intro">Azure Backup features and scenarios</h4>
+          <p>Your company’s business continuity and disaster recovery (BCDR) plan requires full backup and restore capability for high-risk servers. You need to enable and test backup/restore for critical Windows and Linux assets.</p>
+
+          <h4 id="vmbackup-what-is">What is Azure Backup?</h4>
+          <p>Azure Backup is a built-in Azure service that provides secure backups for Azure-managed data assets using zero-infrastructure solutions for self-service backups and restores. It supports at-scale management at a lower and predictable cost, with specialized backup solutions for Azure VMs (and workload-aware backups for SQL Server or SAP HANA running in Azure VMs).</p>
+          <p>Compared to traditional backup solutions that require significant setup, Azure Backup is easily managed through the Azure portal.</p>
+
+          <h4 id="vmbackup-vs-asr">Azure Backup versus Azure Site Recovery</h4>
+          <p>Both Azure Backup and Azure Site Recovery improve resilience, but they do it differently. Backup maintains copies of stateful data so you can restore “back in time.” Site Recovery replicates data in almost real time to enable failover.</p>
+          <p>Use Site Recovery for region-wide disasters (such as natural disasters). Use Backup for accidental data loss, data corruption, and ransomware recovery.</p>
+          <p>The best approach depends on application criticality, RPO/RTO requirements, and cost implications.</p>
+
+          <h4 id="vmbackup-why-use">Why use Azure Backup?</h4>
+          <table>
+            <tr><th>Benefit</th><th>Description</th></tr>
+            <tr><td>Zero-infrastructure backup</td><td>No backup server or storage infrastructure to deploy and manage; Azure Backup handles backup storage scaling.</td></tr>
+            <tr><td>Long-term retention</td><td>Meet compliance needs by retaining backups for many years; lifecycle management prunes recovery points automatically.</td></tr>
+            <tr><td>Security</td><td>RBAC to segregate duties, backup encryption, secure connectivity patterns, and enhanced soft delete for protection against malicious or accidental deletion.</td></tr>
+            <tr><td>No internet connectivity required (VM backups)</td><td>For Azure VMs, data transfer occurs over the Azure backbone; you do not need to open IPs/FQDNs.</td></tr>
+          </table>
+          <ul>
+            <li><strong>Azure role-based access control (RBAC):</strong> grant only the access needed for each role.</li>
+            <li><strong>Encryption of backups:</strong> backups are encrypted with Microsoft-managed keys, or with customer-managed keys stored in Azure Key Vault.</li>
+            <li><strong>Soft delete:</strong> deleted backup data is retained for 14 more days to enable recovery (recovery without data loss).</li>
+            <li><strong>Enhanced soft delete:</strong> can retain deleted items in the soft-deleted state longer to strengthen protection.</li>
+            <li><strong>Support for Azure Disk Encryption–protected VMs:</strong> Azure Backup can back up VMs encrypted with Azure Disk Encryption.</li>
+          </ul>
+          <p><strong>High availability:</strong> Azure Backup offers replication options for backup storage:</p>
+          <ul>
+            <li><strong>LRS (locally redundant storage)</strong> for noncritical scenarios.</li>
+            <li><strong>GRS (geo-redundant storage)</strong> for scenarios that benefit from failover capabilities in a secondary region.</li>
+            <li><strong>ZRS (zone-redundant storage)</strong> for high-availability scenarios protecting against datacenter-level failures by replicating across availability zones.</li>
+          </ul>
+          <p><strong>Centralized monitoring and management:</strong> built-in monitoring and alerting are available in a Recovery Services vault.</p>
+
+          <h4 id="vmbackup-supported-scenarios">Azure Backup supported scenarios</h4>
+          <ul>
+            <li><strong>Azure VMs:</strong> back up Windows or Linux Azure VMs (snapshots stored and managed in a Recovery Services vault).</li>
+            <li><strong>On-premises:</strong> back up files/folders/system state using the MARS agent; or back up on-premises VMs (Hyper-V/VMware) and other workloads using MABS/DPM.</li>
+            <li><strong>Azure Files shares:</strong> Azure Backup supports snapshot management for Azure Files.</li>
+            <li><strong>SQL Server and SAP HANA on Azure VMs:</strong> stream-based, workload-aware backup with enterprise-class restore options (full/differential/log, frequent RPO, point-in-time recovery).</li>
+          </ul>
+
+          <h4 id="vmbackup-backup-azure-vm">Back up an Azure virtual machine by using Azure Backup</h4>
+          <p>Azure VMs are backed up by taking snapshots of the underlying disks at user-defined intervals and transferring those snapshots to the Recovery Services vault according to the customer-defined policy.</p>
+
+          <h4 id="vmbackup-recovery-vault">Recovery Services vault</h4>
+          <p>Azure Backup uses a <strong>Recovery Services vault</strong> to manage and store backup data. A vault is a storage-management entity that provides a simple interface to carry out and monitor backup/restore operations. With Azure Backup, you typically specify the vault for the VM you want to protect; the backup data is transferred in the background to Azure Backup storage accounts managed by the service.</p>
+
+          <h4 id="vmbackup-snapshots">Snapshots</h4>
+          <p>A <strong>snapshot</strong> is a point-in-time backup of all disks on the VM. Azure Backup uses different snapshot extensions by operating system:</p>
+          <table>
+            <tr><th>Extension</th><th>OS</th><th>Description</th></tr>
+            <tr><td>VM Snapshot</td><td>Windows</td><td>Uses Volume Shadow Copy Service (VSS) to take a copy of data on disk and in memory.</td></tr>
+            <tr><td>VM SnapshotLinux</td><td>Linux</td><td>Creates a copy of the disk for the snapshot.</td></tr>
+          </table>
+
+          <h4 id="vmbackup-consistency">Snapshot consistency levels</h4>
+          <p><strong>Application consistent:</strong> captures the VM as a whole (uses VSS writers on Windows and custom pre/post scripts on Linux to capture application state). Provides consistency for the VM and all running applications.</p>
+          <p><strong>File system consistent:</strong> created even if VSS fails on Windows or pre/post scripts fail on Linux. Prevents corruption in the machine, but installed applications may require cleanup during startup.</p>
+          <p><strong>Crash consistent:</strong> typically occurs if the VM is shut down at backup time; no I/O operations or memory contents are captured, so it does not guarantee OS/application consistency.</p>
+
+          <h4 id="vmbackup-backup-policy">Backup policy</h4>
+          <p>Backup policy defines backup frequency and retention duration. VM backups can be triggered daily or weekly and retained for multiple years. Policies support snapshot tier and vault tier. With the Enhanced policy, you can trigger hourly backups. Enhanced backup policy also supports <strong>Selective disk backup</strong> to back up only selected disks and restore a subset from a recovery point (useful for critical data and cost optimization).</p>
+
+          <h4 id="vmbackup-snapshot-tier">Snapshot tier and instant restore</h4>
+          <p>Snapshot tier stores snapshots locally for a maximum period of five days. For operational recoveries, restoring from snapshots is recommended because it is faster—this is referred to as <strong>instant restore</strong>.</p>
+
+          <h4 id="vmbackup-vault-tier">Vault tier</h4>
+          <p>Vault tier additionally transfers snapshots to the vault for more security and longer retention. The recovery point type becomes <strong>snapshot and vault</strong>.</p>
+
+          <h4 id="vmbackup-backup-process">Backup process for an Azure virtual machine</h4>
+          <p>At a high level, Azure Backup:</p>
+          <ul>
+            <li>Starts a backup job for the selected Azure VMs based on the backup frequency in the backup policy.</li>
+            <li>During the first backup, installs the appropriate VM snapshot extension if the VM is running (VM Snapshot for Windows, VM SnapshotLinux for Linux).</li>
+            <li>Takes the snapshot and initially stores it locally, then transfers it to the vault.</li>
+            <li>Optimizes backups by processing VM disks in parallel.</li>
+            <li>Transfers only changed blocks (delta) since the previous backup.</li>
+            <li>May take several hours to fully copy snapshot data to the vault during peak times; total backup time for daily policies is less than 24 hours.</li>
+          </ul>
+          <p><strong>Additional protection options:</strong> you can enable vault encryption with customer-managed keys (CMK). Enhanced soft delete for a Recovery Services vault protects against deletion; you can keep Enhanced soft delete always on to reduce risk from accidental deletion or malware attacks.</p>
+
+          <h4 id="vmbackup-restore-vm-data">Restore virtual machine data</h4>
+          <p>To test BCDR plans, Azure Backup provides restore options. You can restore from the <strong>snapshot tier</strong> (instant restore; typically best for operational recovery) or from the <strong>vault tier</strong>.</p>
+
+          <h4 id="vmbackup-restore-types">Restore types</h4>
+          <table>
+            <tr><th>Restore option</th><th>Details</th></tr>
+            <tr><td>Create a new VM</td><td>Creates a basic VM from the restore point. The new VM must be in the same region as the source VM.</td></tr>
+            <tr><td>Restore disk</td><td>Restores a VM disk and then creates a new VM (or attaches the disk to an existing VM). Azure Backup provides a template to customize the VM.</td></tr>
+            <tr><td>Replace existing</td><td>Restore a disk and replace a disk on the existing VM after taking a snapshot of the existing VM first. Not supported for some managed restore scenarios in this module.</td></tr>
+            <tr><td>Cross region (secondary region)</td><td>Restore Azure VMs/disks in a paired secondary region. Used for disaster recovery testing.</td></tr>
+            <tr><td>Cross Subscription Restore</td><td>Restore managed VMs/disks to a different subscription within the same tenant (when enabled on the vault). Works with cross-region/cross-zonal restore and restore with managed system identities (MSI). Not supported for snapshots-tier recovery points.</td></tr>
+            <tr><td>Cross Zonal Restore</td><td>Restore a VM pinned to a zone to a different zone (logical zone). Supported for managed VMs with MSI and requires compatible vault/storage redundancy settings.</td></tr>
+            <tr><td>Selective disk backup</td><td>Back up and restore selected VM disks using enhanced policy (restoring a subset of disks from a recovery point).</td></tr>
+          </table>
+          <p><strong>Recover files from a backup:</strong> you can recover individual files by mounting the snapshot on a target machine using the iSCSI initiator.</p>
+
+          <h4 id="vmbackup-restore-encrypted-vm">Restore an encrypted virtual machine</h4>
+          <p>Azure Backup supports backing up and restoring VMs encrypted with Azure Disk Encryption. Disk Encryption integrates with Azure Key Vault to manage secrets. You can also use key vault encryption keys (KEKs) to encrypt secrets before they are written to Key Vault.</p>
+          <p><strong>Limitations:</strong> only standalone key encryption is supported (certificate-part keys are not supported). File-level/folder-level restores are not supported—restore the entire VM, then manually copy files/folders. The “Replace existing” option is not available for encrypted VMs.</p>
+
+          <h4 id="vmbackup-check-knowledge">Check your knowledge</h4>
+          <p><strong>1.</strong> Which restore type should you select if you want to replace a disk on an existing virtual machine?</p>
+          <ul>
+            <li>Create a new VM</li>
+            <li>Restore disk</li>
+            <li>Replace existing</li>
+          </ul>
+          <p><strong>2.</strong> You want to replace a disk on an existing VM but receive an error. What’s the possible reason?</p>
+          <ul>
+            <li>The existing VM is deleted and is no longer available.</li>
+            <li>The existing VM is part of a different resource group in your Azure subscription.</li>
+            <li>The existing VM is turned off.</li>
+          </ul>
             </div>
           </div>
         </section>
