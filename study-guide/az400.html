@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AZ-400: Git &amp; Enterprise DevOps — Study Guide</title>
+  <meta name="description" content="Study notes for the Microsoft Learn path AZ-400: Development for Enterprise DevOps (Git, Azure DevOps, GitHub).">
+  <script>
+    (function() {
+      try {
+        var t = localStorage.getItem("az400-theme");
+        if (t === "dark") document.documentElement.setAttribute("data-theme", "dark");
+      } catch (e) {}
+    })();
+  </script>
+  <style>
+    :root {
+      --sidebar-width: 280px;
+      --header-height: 56px;
+      --bg: #f8f9fa;
+      --text: #1a1a1a;
+      --border: #dee2e6;
+      --accent: #0078d4;
+      --accent-soft: #e3f2fd;
+      --nav-bg: #fff;
+      --muted: #666;
+      --placeholder-bg: #f0f0f0;
+      --code-bg: #e9ecef;
+      --code-border: #ced4da;
+      --code-text: #c41e3a;
+      --cmd-bg: #d4edda;
+      --cmd-border: #28a745;
+      --cmd-text: #155724;
+      --table-header-bg: #e3f2fd;
+      --table-border: #bbdefb;
+    }
+
+    [data-theme="dark"] {
+      --bg: #1a1a1a;
+      --text: #e8e8e8;
+      --border: #404040;
+      --accent: #58a6ff;
+      --accent-soft: #1e3a5f;
+      --nav-bg: #252525;
+      --muted: #a0a0a0;
+      --placeholder-bg: #2d2d2d;
+      --code-bg: #2d2d2d;
+      --code-border: #404040;
+      --code-text: #f97583;
+      --cmd-bg: #1e3d2e;
+      --cmd-border: #2ea043;
+      --cmd-text: #7ee787;
+      --table-header-bg: #1e3a5f;
+      --table-border: #2d4a6a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    .layout {
+      display: block;
+      min-height: 100vh;
+    }
+
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      padding: 0.75rem 1.5rem;
+      background: var(--nav-bg);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    .top-nav .site-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+      margin-right: 1rem;
+    }
+
+    .top-nav .site-title:hover {
+      color: var(--accent);
+    }
+
+    .top-nav .nav-links {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .top-nav .nav-links a {
+      display: block;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.95rem;
+      color: var(--text);
+      text-decoration: none;
+      border-radius: 6px;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .top-nav .nav-links a:hover {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .top-nav .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .top-nav .nav-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .top-nav .back-link {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .top-nav .back-link:hover {
+      color: var(--accent);
+    }
+
+    .menu-toggle {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--nav-bg);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 1.25rem;
+    }
+
+    .menu-toggle:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .theme-toggle:hover {
+      background: var(--border);
+    }
+
+    .theme-toggle:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .main-wrap {
+      min-height: 100vh;
+      padding: 2rem 1.5rem 3rem;
+    }
+
+    main {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    main section {
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    main section:last-child {
+      border-bottom: none;
+    }
+
+    main h2 {
+      font-size: 1.5rem;
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      color: var(--accent);
+    }
+
+    main .weight {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    main h3 {
+      font-size: 1.15rem;
+      margin: 1.5rem 0 0.5rem;
+      color: var(--text);
+    }
+
+    main h4 {
+      font-size: 1.05rem;
+      margin: 1.25rem 0 0.5rem;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    main ul, main ol {
+      margin: 0.5rem 0 1rem;
+      padding-left: 1.35rem;
+    }
+
+    main li {
+      margin: 0.35rem 0;
+    }
+
+    main code {
+      font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, monospace;
+      font-size: 0.9em;
+      padding: 0.2em 0.4em;
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      border-radius: 4px;
+      color: var(--code-text);
+    }
+
+    main pre {
+      margin: 0.75rem 0;
+      padding: 1rem 1.25rem;
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, monospace;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      color: var(--code-text);
+    }
+
+    main pre code {
+      padding: 0;
+      background: none;
+      border: none;
+      color: inherit;
+      font-size: inherit;
+    }
+
+    main table {
+      margin: 0.75rem 0;
+      border: 1px solid var(--table-border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    main table th {
+      background: var(--table-header-bg);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    main table td, main table th {
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--table-border);
+    }
+
+    main table tr:last-child td, main table tr:last-child th {
+      border-bottom: none;
+    }
+
+    .collapsible-block {
+      margin-bottom: 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .collapsible-block .block-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin: 0;
+      padding: 0.65rem 1rem;
+      font-size: 1.15rem;
+      cursor: pointer;
+      user-select: none;
+      background: var(--accent-soft);
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s ease;
+    }
+
+    .collapsible-block .block-title:hover {
+      background: var(--border);
+    }
+
+    .collapsible-block.collapsed .block-title {
+      border-bottom: none;
+    }
+
+    .collapsible-block .block-toggle {
+      flex-shrink: 0;
+      margin: 0;
+      padding: 0.2rem 0.4rem;
+      border: none;
+      background: transparent;
+      color: var(--accent);
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .collapsible-block.collapsed .block-toggle {
+      transform: rotate(-90deg);
+    }
+
+    .collapsible-block .block-content {
+      padding: 1rem 1.25rem;
+      background: var(--bg);
+    }
+
+    .collapsible-block.collapsed .block-content {
+      display: none;
+    }
+
+    .fold-unfold {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .fold-unfold button {
+      padding: 0.4rem 0.75rem;
+      font-size: 0.875rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--nav-bg);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .fold-unfold button:hover {
+      background: var(--border);
+    }
+
+    @media (max-width: 768px) {
+      .menu-toggle {
+        display: flex;
+      }
+
+      .top-nav .nav-wrap {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        padding-top: 0.5rem;
+        border-top: 1px solid var(--border);
+        margin-top: 0.25rem;
+      }
+
+      .top-nav.nav-open .nav-wrap {
+        display: flex;
+      }
+
+      .top-nav .nav-links {
+        flex-direction: column;
+        padding: 0;
+      }
+
+      .main-wrap {
+        padding: 1.25rem 1rem 2rem;
+      }
+    }
+
+    @media print {
+      .menu-toggle,
+      .theme-toggle,
+      .fold-unfold,
+      .top-nav {
+        display: none !important;
+      }
+
+      .collapsible-block.collapsed .block-content {
+        display: block !important;
+      }
+
+      .main-wrap {
+        padding: 0;
+      }
+
+      main section {
+        page-break-inside: avoid;
+      }
+
+      body {
+        background: #fff;
+      }
+
+      main code {
+        background: #eee;
+        border-color: #ccc;
+        color: #333;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="top-nav" id="topNav">
+    <a href="az400.html" class="site-title">AZ-400 Study Guide</a>
+    <button type="button" class="menu-toggle" id="menuToggle" aria-label="Open menu">☰</button>
+    <div class="nav-wrap">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="back-link">← Back to portfolio</a></li>
+        <li><a href="az104.html">AZ-104 guide</a></li>
+        <li><a href="#path-overview">Path</a></li>
+        <li><a href="#mod-devops">1</a></li>
+        <li><a href="#mod-agile">2</a></li>
+        <li><a href="#mod-branches">3</a></li>
+        <li><a href="#mod-pr">4</a></li>
+        <li><a href="#mod-hooks">5</a></li>
+        <li><a href="#mod-innersource">6</a></li>
+        <li><a href="#mod-repos">7</a></li>
+        <li><a href="#mod-debt">8</a></li>
+      </ul>
+      <div class="nav-right">
+        <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" title="Toggle dark/light mode">☀</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <div class="main-wrap">
+      <main>
+        <div class="fold-unfold">
+          <button type="button" id="foldAll" aria-label="Collapse all sections">Fold all</button>
+          <button type="button" id="unfoldAll" aria-label="Expand all sections">Unfold all</button>
+        </div>
+
+        <section id="path-overview">
+          <h2>AZ-400: Development for Enterprise DevOps</h2>
+          <p class="weight">Learning path: Git, Azure DevOps, GitHub — 8 modules · Advanced</p>
+          <p>This study guide follows the Microsoft Learn path <a href="https://learn.microsoft.com/en-us/training/paths/az-400-work-git-for-enterprise-devops/" target="_blank" rel="noopener">AZ-400: Development for Enterprise DevOps</a> (repositories, branching, PRs, hooks, inner source, technical debt). Each module below lists <strong>learning objectives</strong>, <strong>key ideas</strong> aligned with Learn units, and links to the official module. Content is summarized from Microsoft Learn for offline review; open the module links for exercises, videos, and knowledge checks.</p>
+          <p><strong>Path prerequisites:</strong> None. <strong>Typical products:</strong> Azure DevOps, Azure Repos, Azure Pipelines, Azure Boards, Azure Artifacts, Azure Test Plans, GitHub.</p>
+          <table>
+            <tr><th>#</th><th>Module</th><th>Focus</th></tr>
+            <tr><td>1</td><td><a href="#mod-devops">Introduction to DevOps</a></td><td>People, process, products; continuous value; Azure DevOps &amp; GitHub; Git basics</td></tr>
+            <tr><td>2</td><td><a href="#mod-agile">Plan Agile with GitHub Projects and Azure Boards</a></td><td>GitHub Projects, boards, linking Azure Boards to GitHub</td></tr>
+            <tr><td>3</td><td><a href="#mod-branches">Branch strategies and workflows</a></td><td>Branching models for continuous delivery</td></tr>
+            <tr><td>4</td><td><a href="#mod-pr">Pull requests in Azure Repos</a></td><td>Code review, branch policies, collaboration</td></tr>
+            <tr><td>5</td><td><a href="#mod-hooks">Git hooks</a></td><td>Automate checks and improve workflow</td></tr>
+            <tr><td>6</td><td><a href="#mod-innersource">Inner source</a></td><td>Fork workflows and cross-org collaboration</td></tr>
+            <tr><td>7</td><td><a href="#mod-repos">Manage repositories</a></td><td>Large repos, cleanup, releases (GitHub)</td></tr>
+            <tr><td>8</td><td><a href="#mod-debt">Technical debt</a></td><td>Find, manage, and review code quality</td></tr>
+          </table>
+        </section>
+
+        <section id="modules">
+          <h2>Modules</h2>
+
+          <div class="collapsible-block" data-block="az400-m1">
+            <h3 id="mod-devops" class="block-title">1. Introduction to DevOps <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <div class="block-content">
+          <p><a href="https://learn.microsoft.com/en-us/training/modules/introduction-to-devops/" target="_blank" rel="noopener">Introduction to DevOps</a> — Microsoft Learn (~42 min · 15 units · Beginner).</p>
+          <h4 id="mod-devops-objectives">Learning objectives</h4>
+          <ul>
+            <li>Define DevOps and core principles (people, process, products for continuous value).</li>
+            <li>Plan organizational transformation: teams, shared goals, timelines, agile structure.</li>
+            <li>Describe Azure DevOps and GitHub at a high level.</li>
+            <li>Explain source control and Git fundamentals, working with Git locally.</li>
+            <li>Consider license management strategy.</li>
+            <li>Apply cycle time thinking and validated learning (data-informed decisions).</li>
+          </ul>
+          <h4 id="mod-devops-what">What is DevOps?</h4>
+          <p><strong>DevOps</strong> combines Development and Operations into multidisciplinary teams with shared practices, tools, and accountability. Typical practices include agile planning, <strong>continuous integration</strong>, <strong>continuous delivery</strong>, and monitoring. DevOps is a <strong>continuous journey</strong>, not a one-time project.</p>
+          <p><strong>Business outcomes</strong> organizations often target: higher deployment frequency, shorter lead time, lower <strong>mean time to recovery (MTTR)</strong>, and lower change failure rate—leading to faster time-to-market, fewer deployment incidents, better developer productivity, and lower cost through automation.</p>
+          <h4 id="mod-devops-cycle">Cycle time, OODA, and validated learning</h4>
+          <p>The <strong>OODA loop</strong> (Observe, Orient, Decide, Act) maps well to product delivery: observe metrics and telemetry, orient with experiments, decide priorities, act by shipping and measuring. <strong>Cycle time</strong> is how long it takes to go from idea or commit to production feedback—e.g. from code commit to deploy, or from feature request to customer signal. Long cycle time on small changes indicates a bottleneck.</p>
+          <p>Be <strong>data-informed</strong>, not paralyzed by data: some releases help, some hurt, some are neutral—<strong>fail fast</strong> on what does not advance goals and double down on what does (“pivot or persevere”). <strong>Validated learning</strong> uses factual, actionable, timely feedback (usage, performance, support, KPIs) each cycle.</p>
+          <p>Shorter cycle time comes from smaller batches, more automation, stronger pipelines, better telemetry, and more frequent deploys—which increases experiments and validated learning per unit of time.</p>
+          <h4 id="mod-devops-platforms">Azure DevOps, GitHub, Git, and source control</h4>
+          <p>The module introduces <strong>Azure DevOps</strong> (Boards, Repos, Pipelines, Test Plans, Artifacts) and <strong>GitHub</strong> for planning, code, CI/CD, and collaboration. <strong>Source control</strong> tracks versions of files and coordinates changes across branches and contributors. <strong>Git</strong> is distributed: work locally with commits, branches, and remotes; <strong>Azure Repos</strong> and <strong>GitHub</strong> host remotes and support PR workflows. A <strong>license management strategy</strong> aligns seats/skills with Azure DevOps and GitHub licensing models for your org.</p>
+          <h4 id="mod-devops-units">Units (Learn)</h4>
+          <p>Introduction → What is DevOps? → DevOps journey → Transformation teams → Agile org structure → Shared goals and timelines → What is Azure DevOps? / GitHub? → License strategy → Source control → Git locally → Azure Repos / GitHub intros → Knowledge check → Summary.</p>
+            </div>
+          </div>
+
+          <div class="collapsible-block" data-block="az400-m2">
+            <h3 id="mod-agile" class="block-title">2. Plan Agile with GitHub Projects and Azure Boards <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <div class="block-content">
+          <p><a href="https://learn.microsoft.com/en-us/training/modules/plan-agile-github-projects-azure-boards/" target="_blank" rel="noopener">Plan Agile with GitHub Projects and Azure Boards</a> — Microsoft Learn (~1 hr 34 min · 14 units · Advanced).</p>
+          <h4 id="mod-agile-objectives">Learning objectives</h4>
+          <ul>
+            <li>Describe GitHub Projects and Azure Boards.</li>
+            <li>Link Azure Boards and GitHub.</li>
+            <li>Configure and manage GitHub Projects and boards.</li>
+            <li>Customize Project views.</li>
+          </ul>
+          <h4 id="mod-agile-github-projects">GitHub Projects and boards</h4>
+          <p><strong>GitHub Projects</strong> help teams organize and visualize work (tables, boards, roadmaps). <strong>Project boards</strong> track issues and pull requests through customizable columns and automation. You configure projects, views (e.g. by assignee, milestone, iteration), and workflows so the team sees the same plan in one place.</p>
+          <h4 id="mod-agile-azure-boards">Azure Boards</h4>
+          <p><strong>Azure Boards</strong> is Azure DevOps work tracking for Agile, Scrum, Kanban, and custom processes. It supports process customization (work item types, fields, workflows), hierarchy from tasks up to epics, queries (flat, tree, direct links), dashboards, and <strong>Delivery Plans</strong> for multi-team timelines and dependencies. Typical work items include Epic, Feature, User Story, Task, and Bug—with discussions, history, links to commits/PRs, attachments, and tags.</p>
+          <h4 id="mod-agile-link">Link GitHub to Azure Boards</h4>
+          <p>Integrating <strong>GitHub with Azure Boards</strong> connects commits, branches, and PRs to work items for traceability from requirement to code. Configure the connection in Azure DevOps (see <a href="https://learn.microsoft.com/en-us/azure/devops/boards/github/" target="_blank" rel="noopener">GitHub and Azure Boards</a>). After linking, use AB#&lt;id&gt; or similar conventions in commits/PRs so state transitions and rollups stay accurate.</p>
+          <h4 id="mod-agile-more">Collaboration and traceability</h4>
+          <p>The module also covers configuring projects and teams in Azure DevOps, team discussions, <strong>feedback cycles</strong>, and <strong>traceability</strong> from source, bugs, and quality signals—plus a deep unit on agile plan and portfolio management with Azure Boards.</p>
+            </div>
+          </div>
+
+          <div class="collapsible-block" data-block="az400-m3">
+            <h3 id="mod-branches" class="block-title">3. Design and implement branch strategies and workflows <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <div class="block-content">
+          <p><a href="https://learn.microsoft.com/en-us/training/modules/manage-git-branches-workflows/" target="_blank" rel="noopener">Design and implement branch strategies and workflows</a> — Microsoft Learn (~1 hr 32 min · 10 units · Advanced).</p>
+          <h4 id="mod-branches-objectives">Learning objectives</h4>
+          <ul>
+            <li>Describe Git branching workflows.</li>
+            <li>Implement feature branches.</li>
+            <li>Implement GitHub Flow.</li>
+            <li>Fork a repository.</li>
+          </ul>
+          <h4 id="mod-branches-choose">Choosing a workflow</h4>
+          <p>Pick a workflow using team size, release cadence, quality gates, tooling integration, and operational cost. Learn presents a comparison: <strong>GitHub Flow</strong> fits continuous delivery and simple gates; <strong>feature branches</strong> isolate work with review before merge; <strong>release branches</strong> add stabilization for formal releases; <strong>forking</strong> suits open source and strict access boundaries.</p>
+          <table>
+            <tr><th>Pattern</th><th>Best when</th></tr>
+            <tr><td>GitHub Flow</td><td>Single main, always deployable; short feature branches and PRs; CD with strong automation.</td></tr>
+            <tr><td>Feature branch</td><td>Parallel features, stable main, formal review before merge.</td></tr>
+            <tr><td>Release branch</td><td>Scheduled releases, extended QA, parallel dev while stabilizing a release.</td></tr>
+            <tr><td>Forking</td><td>External contributors or partners; maintainers merge from forks.</td></tr>
+          </table>
+          <h4 id="mod-branches-github-flow">GitHub Flow (typical pattern)</h4>
+          <p>One long-lived <code>main</code> branch stays production-ready. Create short-lived <strong>feature branches</strong> from main, open <strong>pull requests</strong> for review and CI, merge when green. This minimizes cognitive load and speeds feedback when tests and deploys are automated.</p>
+          <h4 id="mod-branches-policies">Merging restrictions and Azure Repos</h4>
+          <p>Enforce <strong>branch policies</strong> in Azure Repos (required reviewers, build success, linked work items) so merges match your risk profile. The long exercise unit covers <strong>version control with Git in Azure Repos</strong> end-to-end.</p>
+            </div>
+          </div>
+
+          <div class="collapsible-block" data-block="az400-m4">
+            <h3 id="mod-pr" class="block-title">4. Collaborate with pull requests in Azure Repos <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <div class="block-content">
+          <p><a href="https://learn.microsoft.com/en-us/training/modules/collaborate-pull-requests-azure-repos/" target="_blank" rel="noopener">Collaborate with pull requests in Azure Repos</a> — Microsoft Learn (~30 min · 5 units · Advanced).</p>
+          <p><strong>Prerequisites (Learn):</strong> Git branching basics; familiarity with Azure DevOps; general SDLC and code-review concepts.</p>
+          <h4 id="mod-pr-objectives">Learning objectives</h4>
+          <ul>
+            <li>Implement enterprise-grade PR workflows for scalable collaboration.</li>
+            <li>Design code review processes that improve quality and knowledge transfer.</li>
+            <li>Configure branch policies and automated governance.</li>
+            <li>Use Azure Repos integration for cross-team patterns.</li>
+            <li>Use PR governance for audit and compliance signals.</li>
+          </ul>
+          <h4 id="mod-pr-role">Why pull requests matter</h4>
+          <p>Pull requests are the main place for <strong>integrating change safely</strong>: they combine review, discussion, automation (build/test), and merge rules. Done well, they spread knowledge, align architecture, and catch defects before mainline.</p>
+          <h4 id="mod-pr-azure">Azure Repos in the enterprise</h4>
+          <p><strong>Azure Repos</strong> integrates with Microsoft Entra ID for identity, supports large repos and high volume, and connects to <strong>Azure Boards</strong> (work items, traceability), <strong>Azure Pipelines</strong> (build/validation policies), and <strong>Azure Test Plans</strong>. Branch policies encode minimum reviewers, required reviewers by path, build success, comment resolution, and merge restrictions.</p>
+          <h4 id="mod-pr-review">Strategic code review</h4>
+          <p>Effective reviews go beyond bug hunting: check <strong>architectural consistency</strong>, teach patterns, standardize quality, and include <strong>security</strong> mindset. Give <strong>specific, actionable</strong> feedback; separate must-fix from suggestions; explain reasoning to grow the team.</p>
+          <h4 id="mod-pr-policies">Branch policies and automation</h4>
+          <p>Policies can require reviews and builds, link to <strong>work items</strong> for traceability, and integrate <strong>status checks</strong> from pipelines or external systems. Use metrics (time to merge, review participation, policy bypasses) to improve the process without drowning velocity.</p>
+            </div>
+          </div>
+
+          <div class="collapsible-block" data-block="az400-m5">
+            <h3 id="mod-hooks" class="block-title">5. Explore Git hooks <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <div class="block-content">
+          <p><a href="https://learn.microsoft.com/en-us/training/modules/explore-git-hooks/" target="_blank" rel="noopener">Explore Git hooks</a> — Microsoft Learn (~14 min · 5 units · Advanced).</p>
+          <p><strong>Prerequisites (Learn):</strong> Solid Git workflows; Azure DevOps usage; scripting (Bash, PowerShell, or Python); CI basics; security awareness.</p>
+          <h4 id="mod-hooks-objectives">Learning objectives</h4>
+          <ul>
+            <li>Create hooks that enforce code quality for the team.</li>
+            <li>Run checks before and after commits.</li>
+            <li>Block secrets and unsafe patterns from being committed.</li>
+            <li>Connect hooks with Azure DevOps and pipelines.</li>
+            <li>Share hooks so the whole team uses them.</li>
+          </ul>
+          <h4 id="mod-hooks-why">Why automate on the client</h4>
+          <p><strong>Git hooks</strong> run scripts at lifecycle points (e.g. <code>pre-commit</code>, <code>commit-msg</code>, <code>pre-push</code>). They support <strong>shift-left</strong>: catch formatting, lint, tests, and secrets before code reaches the server—cheaper than fixing in production. In regulated environments, hooks can enforce policy and leave an auditable trail when combined with server-side rules.</p>
+          <h4 id="mod-hooks-types">Common hook types</h4>
+          <ul>
+            <li><strong>Pre-commit:</strong> Formatting, linters, quick tests, secret scanning, dependency scans.</li>
+            <li><strong>Commit-msg / prepare-commit-msg:</strong> Enforce message format and links to work items (e.g. <code>#1234</code>, <code>AB#1234</code> for Azure Boards).</li>
+            <li><strong>Pre-push:</strong> Broader tests, integration checks, or branch naming rules.</li>
+          </ul>
+          <h4 id="mod-hooks-ado">Azure DevOps alignment</h4>
+          <p>Hooks complement <strong>branch policies</strong> and <strong>pipelines</strong>: local hooks give fast feedback; server-side builds and PR checks are the source of truth for merge. You can use hooks to queue or validate against pipeline definitions (e.g. ensure a validation build for large changes). Standardize hooks via shared install scripts or frameworks so every developer runs the same gates.</p>
+            </div>
+          </div>
+
+          <div class="collapsible-block" data-block="az400-m6">
+            <h3 id="mod-innersource" class="block-title">6. Plan to foster inner source <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <div class="block-content">
+          <p><a href="https://learn.microsoft.com/en-us/training/modules/plan-fostering-inner-source/" target="_blank" rel="noopener">Plan to foster inner source</a> — Microsoft Learn (~20 min · 6 units · Advanced).</p>
+          <p><strong>Prerequisites (Learn):</strong> Basic Git and collaboration concepts.</p>
+          <h4 id="mod-innersource-objectives">Learning objectives</h4>
+          <ul>
+            <li>Use Git to foster inner source across the organization.</li>
+            <li>Implement fork workflows for collaboration.</li>
+            <li>Choose branches vs forks by scenario.</li>
+            <li>Share code effectively between forks.</li>
+          </ul>
+          <h4 id="mod-innersource-define">What is inner source?</h4>
+          <p><strong>Inner source</strong> applies open-source practices <em>inside</em> the company: discoverable code, PR-based contribution, and shared ownership—while code stays private. It improves cross-team collaboration, reuse, quality (more reviewers), and speed of innovation.</p>
+          <h4 id="mod-innersource-branch-vs-fork">Branches vs forks</h4>
+          <p>For <strong>one team</strong> with write access, the usual flow is branch → PR → merge. For <strong>another team</strong> without write access—or to experiment safely—<strong>fork</strong> the repo, push to your fork, open a PR back to upstream. Maintainers review and merge. That is the same model as open source, applied internally.</p>
+          <h4 id="mod-innersource-ms">Example: scaling contribution</h4>
+          <p>Large enterprises (including Microsoft’s internal engineering system on Azure Repos) use inner source so any engineer can fork, fix, or extend another team’s component without needing direct write access—reducing silos and duplicate code.</p>
+            </div>
+          </div>
+
+          <div class="collapsible-block" data-block="az400-m7">
+            <h3 id="mod-repos" class="block-title">7. Manage and configure repositories <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <div class="block-content">
+          <p><a href="https://learn.microsoft.com/en-us/training/modules/manage-git-repositories/" target="_blank" rel="noopener">Manage and configure repositories</a> — Microsoft Learn (~48 min · 15 units · Advanced).</p>
+          <h4 id="mod-repos-objectives">Learning objectives</h4>
+          <ul>
+            <li>Work with large Git repositories.</li>
+            <li>Use VFS for Git where appropriate.</li>
+            <li>Use Git Large File Storage (Git LFS) for big binaries.</li>
+            <li>Clean up repository data.</li>
+            <li>Manage and automate release notes with GitHub.</li>
+          </ul>
+          <h4 id="mod-repos-large">Why repos get huge</h4>
+          <p>Repositories grow from <strong>long history</strong> (years of commits) and <strong>large binaries</strong> (media, builds). Very large clones stress disk, network, and developer patience—techniques like <strong>shallow clone</strong> (<code>git clone --depth N</code>), single-branch clone, <strong>partial clone</strong>, and <strong>sparse-checkout</strong> reduce what each developer needs locally.</p>
+          <h4 id="mod-repos-vfs-scalar">VFS for Git and Scalar</h4>
+          <p><strong>VFS for Git</strong> virtualizes the working tree so files hydrate on demand; it works with a Git LFS–style client for monorepo-scale trees. <strong>Scalar</strong> is a Microsoft tool that enables partial clone, background prefetch, sparse-checkout, filesystem monitor, commit-graph, multi-pack-index, and incremental repack—speeding everyday commands on huge repos. Azure Repos can expose the <strong>GVFS protocol</strong> for compatible clients.</p>
+          <h4 id="mod-repos-lfs">Git LFS</h4>
+          <p><strong>Git LFS</strong> stores large files outside the normal Git object store and replaces them with pointers in commits—better for binaries than bloating history. See GitHub’s <a href="https://docs.github.com/repositories/working-with-files/managing-large-files" target="_blank" rel="noopener">managing large files</a>.</p>
+          <h4 id="mod-repos-rest">Monorepo vs multi-repo, releases, docs</h4>
+          <p>The module also compares <strong>monorepo vs multiple repos</strong>, implements changelogs, recovers data with Git commands, <strong>purges</strong> sensitive or unwanted history, manages <strong>GitHub Releases</strong>, automates release notes, adds API docs, automates history documentation, configures repo permissions and tags on GitHub.</p>
+            </div>
+          </div>
+
+          <div class="collapsible-block" data-block="az400-m8">
+            <h3 id="mod-debt" class="block-title">8. Identify technical debt <button type="button" class="block-toggle" aria-label="Collapse section">▼</button></h3>
+            <div class="block-content">
+          <p><a href="https://learn.microsoft.com/en-us/training/modules/identify-technical-debt/" target="_blank" rel="noopener">Identify technical debt</a> — Microsoft Learn (10 units · Advanced).</p>
+          <h4 id="mod-debt-objectives">Learning objectives</h4>
+          <ul>
+            <li>Find and manage technical debt.</li>
+            <li>Use code quality tools to improve software.</li>
+            <li>Plan effective code reviews.</li>
+            <li>Understand complexity and quality metrics.</li>
+          </ul>
+          <h4 id="mod-debt-define">What is technical debt?</h4>
+          <p><strong>Technical debt</strong> is the future cost of shortcuts taken today—like financial debt, it accrues “interest”: each hack makes the next change slower and riskier. Causes include deadlines, unclear requirements, weak standards, skipped tests, copy-paste instead of refactor, poor architecture choices, over-engineering, missing docs, and dead code.</p>
+          <p>Debt reduces velocity, frustrates teams, increases defects and support cost, and can make the org unable to respond to customers. It must be <strong>paid down</strong> or delivery eventually becomes prohibitively expensive.</p>
+          <h4 id="mod-debt-measure">Measurement and tools</h4>
+          <p><strong>Automated analysis</strong> (quality gates in CI) slows uncontrolled debt. Learn covers tools such as <strong>SonarCloud</strong> / SonarQube (rules, quality profiles, integration with Azure Pipelines), <strong>GitHub Advanced Security</strong> (dependency, secret, and code scanning), and other analyzers. Combine metrics (complexity, duplication, coverage) with human review to prioritize fixes.</p>
+          <h4 id="mod-debt-reviews">Code reviews and debt</h4>
+          <p>Reviews should flag architectural drift, missing tests, and risky shortcuts—not only syntax. Consistent standards and refactoring time in sprints prevent debt from compounding silently.</p>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      var THEME_KEY = "az400-theme";
+      var themeToggle = document.getElementById("themeToggle");
+
+      function getTheme() {
+        return document.documentElement.getAttribute("data-theme") || "light";
+      }
+
+      function setTheme(theme) {
+        document.documentElement.setAttribute("data-theme", theme);
+        try { localStorage.setItem(THEME_KEY, theme); } catch (e) {}
+        themeToggle.setAttribute("aria-label", theme === "dark" ? "Switch to light mode" : "Switch to dark mode");
+        themeToggle.setAttribute("title", theme === "dark" ? "Switch to light mode" : "Switch to dark mode");
+        themeToggle.textContent = theme === "dark" ? "☀" : "🌙";
+      }
+
+      function initTheme() {
+        var saved = null;
+        try { saved = localStorage.getItem(THEME_KEY); } catch (e) {}
+        var theme = saved === "dark" || saved === "light" ? saved : "light";
+        setTheme(theme);
+      }
+
+      initTheme();
+      themeToggle.addEventListener("click", function() {
+        setTheme(getTheme() === "dark" ? "light" : "dark");
+      });
+
+      var topNav = document.getElementById("topNav");
+      var menuToggle = document.getElementById("menuToggle");
+
+      menuToggle.addEventListener("click", function() {
+        topNav.classList.toggle("nav-open");
+        menuToggle.setAttribute("aria-label", topNav.classList.contains("nav-open") ? "Close menu" : "Open menu");
+      });
+
+      document.querySelectorAll(".top-nav .nav-links a").forEach(function(link) {
+        link.addEventListener("click", function() {
+          if (window.innerWidth <= 768) {
+            topNav.classList.remove("nav-open");
+            menuToggle.setAttribute("aria-label", "Open menu");
+          }
+        });
+      });
+
+      var blocks = document.querySelectorAll(".collapsible-block");
+      function toggleBlock(block) {
+        block.classList.toggle("collapsed");
+        var btn = block.querySelector(".block-toggle");
+        if (btn) btn.setAttribute("aria-label", block.classList.contains("collapsed") ? "Expand section" : "Collapse section");
+      }
+      blocks.forEach(function(block) {
+        var title = block.querySelector(".block-title");
+        var toggleBtn = block.querySelector(".block-toggle");
+        if (title) {
+          title.addEventListener("click", function(e) {
+            if (e.target !== toggleBtn) toggleBlock(block);
+          });
+        }
+        if (toggleBtn) toggleBtn.addEventListener("click", function(e) { e.stopPropagation(); toggleBlock(block); });
+      });
+      document.getElementById("foldAll").addEventListener("click", function() {
+        blocks.forEach(function(block) { block.classList.add("collapsed"); });
+        document.querySelectorAll(".block-toggle").forEach(function(btn) { btn.setAttribute("aria-label", "Expand section"); });
+      });
+      document.getElementById("unfoldAll").addEventListener("click", function() {
+        blocks.forEach(function(block) { block.classList.remove("collapsed"); });
+        document.querySelectorAll(".block-toggle").forEach(function(btn) { btn.setAttribute("aria-label", "Collapse section"); });
+      });
+    })();
+  </script>
+</body>
+</html>
