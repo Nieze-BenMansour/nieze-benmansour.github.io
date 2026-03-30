@@ -1,11 +1,15 @@
-# One-off generator for AZ-400 path study pages. Run: python _generate_az400_paths.py
+# Generator for AZ-400 path study pages.
+# Run: python _generate_az400_paths.py
+# French: python _generate_az400_paths.py --locale fr
+# After FR Learn fetch + build_az400_all --locale fr (same session as FR split pages).
+import argparse
 import html
 import os
 
 from build_az400_all import module_block
 
-STYLE_AND_HEAD = r'''<!DOCTYPE html>
-<html lang="en">
+STYLE_AND_HEAD = r"""<!DOCTYPE html>
+<html lang="{lang}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -102,9 +106,9 @@ STYLE_AND_HEAD = r'''<!DOCTYPE html>
   </style>
 </head>
 <body>
-'''
+"""
 
-SCRIPT = r'''
+SCRIPT = r"""
   <script>
     (function() {
       var THEME_KEY = "az400-theme";
@@ -164,7 +168,21 @@ SCRIPT = r'''
   </script>
 </body>
 </html>
-'''
+"""
+
+SCRIPT_FR = (
+    SCRIPT.replace("Switch to light mode", "Passer en mode clair")
+    .replace("Switch to dark mode", "Passer en mode sombre")
+    .replace("Close menu", "Fermer le menu")
+    .replace("Open menu", "Ouvrir le menu")
+    .replace("Expand section", "Développer la section")
+    .replace("Collapse section", "Réduire la section")
+)
+
+
+def _script_for(locale: str) -> str:
+    return SCRIPT_FR if locale == "fr" else SCRIPT
+
 
 PATHS = [
     {
@@ -278,25 +296,120 @@ PATHS = [
     },
 ]
 
+PATHS_FR = [
+    {
+        "file": "az400-ci.html",
+        "short": "AZ-400 : CI",
+        "title": "AZ-400 : intégration continue avec Azure Pipelines et GitHub Actions",
+        "desc": "Guide : intégration continue avec Azure Pipelines et GitHub Actions (Microsoft Learn).",
+        "url": "https://learn.microsoft.com/fr-fr/training/paths/az-400-implement-ci-azure-pipelines-github-actions/",
+        "blurb": "Intégration continue avec Azure Pipelines et GitHub Actions : agents, concurrence, stratégie de pipeline, intégration et builds de conteneurs.",
+        "mods": PATHS[0]["mods"],
+    },
+    {
+        "file": "az400-release.html",
+        "short": "AZ-400 : Mise en prod.",
+        "title": "AZ-400 : concevoir et implémenter une stratégie de mise en production",
+        "desc": "Guide : pipelines de mise en production, environnements, modèles et contrôles d’intégrité (Microsoft Learn).",
+        "url": "https://learn.microsoft.com/fr-fr/training/paths/az-400-design-implement-release-strategy/",
+        "blurb": "Livraison continue : pipelines de mise en production, approbations, portes, environnements, tâches modulaires et inspection automatisée.",
+        "mods": PATHS[1]["mods"],
+    },
+    {
+        "file": "az400-secure-deploy.html",
+        "short": "AZ-400 : Déploiement sécurisé",
+        "title": "AZ-400 : sécuriser le déploiement continu",
+        "desc": "Guide : modèles de déploiement, livraison progressive, identité et configuration (Microsoft Learn).",
+        "url": "https://learn.microsoft.com/fr-fr/training/paths/az-400-implement-secure-continuous-deployment/",
+        "blurb": "Déploiement sécurisé : modèles bleu-vert et bascules, canary et lancement sombre, tests A/B, identité, configuration d’application.",
+        "mods": PATHS[2]["mods"],
+    },
+    {
+        "file": "az400-iac.html",
+        "short": "AZ-400 : IaC",
+        "title": "AZ-400 : infrastructure as code et DSC",
+        "desc": "Guide : IaC sur Azure, ARM, Bicep, CLI, Automation, DSC (Microsoft Learn).",
+        "url": "https://learn.microsoft.com/fr-fr/training/paths/az-400-manage-infrastructure-as-code-using-azure/",
+        "blurb": "Infrastructure déclarative : concepts IaC, ARM/Bicep, Azure CLI, Azure Automation, Desired State Configuration.",
+        "mods": PATHS[3]["mods"],
+    },
+    {
+        "file": "az400-dependencies.html",
+        "short": "AZ-400 : Dépendances",
+        "title": "AZ-400 : stratégie de gestion des dépendances",
+        "desc": "Guide : packages, flux, sécurité, versions, GitHub Packages (Microsoft Learn).",
+        "url": "https://learn.microsoft.com/fr-fr/training/paths/az-400-design-implement-dependency-management-strategy/",
+        "blurb": "Dépendances : identification, flux, Azure Artifacts, migration, sécurité, contrôle de version sémantique, GitHub Packages.",
+        "mods": PATHS[4]["mods"],
+    },
+    {
+        "file": "az400-feedback.html",
+        "short": "AZ-400 : Commentaires",
+        "title": "AZ-400 : commentaires continus",
+        "desc": "Guide : supervision, tableaux de bord, partage des connaissances, analytique, culture (Microsoft Learn).",
+        "url": "https://learn.microsoft.com/fr-fr/training/paths/az-400-implement-continuous-feedback/",
+        "blurb": "Boucles de commentaires : Azure Monitor, Application Insights, tableaux de bord, wikis, analytique automatisée, alertes et culture sans blâme.",
+        "mods": PATHS[5]["mods"],
+    },
+    {
+        "file": "az400-devsecops.html",
+        "short": "AZ-400 : DevSecOps",
+        "title": "AZ-400 : sécurité et conformité des bases de code",
+        "desc": "Guide : DevSecOps, OSS, SCA, Defender et gouvernance (Microsoft Learn).",
+        "url": "https://learn.microsoft.com/fr-fr/training/paths/az-400-implement-security-validate-code-bases-compliance/",
+        "blurb": "DevSecOps : pipelines sécurisés, licences OSS, analyse de composition logicielle, Microsoft Defender pour le cloud, Azure Policy, GitHub Advanced Security.",
+        "mods": PATHS[6]["mods"],
+    },
+]
 
-def path_page(p):
+
+def path_page(p, *, locale: str, learn: dict, unit_excerpts: dict, index_href: str, az104_href: str, az104_en_href: str, all_en_href: str, script: str) -> str:
     nav_nums = "".join(f'        <li><a href="#{m[0]}">{i}</a></li>\n' for i, m in enumerate(p["mods"], 1))
-    blocks = "".join(module_block(m[0], m[1], m[2]) for m in p["mods"])
-    head = STYLE_AND_HEAD.format(title=html.escape(p["title"]), desc=html.escape(p["desc"]))
+    blocks = "".join(
+        module_block(m[0], m[1], m[2], locale=locale, learn=learn, unit_excerpts=unit_excerpts) for m in p["mods"]
+    )
+    lang = "fr" if locale == "fr" else "en"
+    head = STYLE_AND_HEAD.format(title=html.escape(p["title"]), desc=html.escape(p["desc"]), lang=lang)
     site_link = p["file"]
     nav_title = html.escape(p.get("short", p["title"]))
+    if locale == "fr":
+        nav_extra = f'''        <li><a href="{index_href}" class="back-link">← Retour au portfolio</a></li>
+        <li><a href="az400-index.html">Parcours AZ-400</a></li>
+        <li><a href="{az104_href}">Guide AZ-104 (FR)</a></li>
+        <li><a href="{az104_en_href}">AZ-104 (EN)</a></li>
+        <li><a href="{all_en_href}">Guide AZ-400 (EN)</a></li>
+        <li><a href="#path-overview">Parcours</a></li>
+'''
+        path_intro = f'Parcours officiel : <a href="{p["url"]}" target="_blank" rel="noopener">{html.escape(p["title"])}</a>. {html.escape(p["blurb"])} Utilisez les liens de module ci-dessous pour les unités complètes, les labos et les évaluations.'
+        weight = "Parcours Microsoft Learn · Avancé"
+        fold_a = '          <button type="button" id="foldAll" aria-label="Tout replier">Tout replier</button>\n'
+        fold_b = '          <button type="button" id="unfoldAll" aria-label="Tout déplier">Tout déplier</button>\n'
+        h2_mod = "Modules"
+        menu_aria = "Ouvrir le menu"
+        theme_aria = "Basculer le thème"
+    else:
+        nav_extra = f'''        <li><a href="{index_href}" class="back-link">← Back to portfolio</a></li>
+        <li><a href="az400-index.html">AZ-400 paths</a></li>
+        <li><a href="{az104_href}">AZ-104</a></li>
+        <li><a href="fr/az400-index.html">Version française</a></li>
+        <li><a href="#path-overview">Path</a></li>
+'''
+        path_intro = f'Official path: <a href="{p["url"]}" target="_blank" rel="noopener">{html.escape(p["title"])}</a>. {html.escape(p["blurb"])} Use the module links below for full units, labs, and assessments.'
+        weight = "Microsoft Learn learning path · Advanced"
+        fold_a = '          <button type="button" id="foldAll" aria-label="Collapse all sections">Fold all</button>\n'
+        fold_b = '          <button type="button" id="unfoldAll" aria-label="Expand all sections">Unfold all</button>\n'
+        h2_mod = "Modules"
+        menu_aria = "Open menu"
+        theme_aria = "Toggle theme"
+
     return head + f'''  <header class="top-nav" id="topNav">
     <a href="{site_link}" class="site-title">{nav_title}</a>
-    <button type="button" class="menu-toggle" id="menuToggle" aria-label="Open menu">☰</button>
+    <button type="button" class="menu-toggle" id="menuToggle" aria-label="{menu_aria}">☰</button>
     <div class="nav-wrap">
       <ul class="nav-links">
-        <li><a href="../index.html" class="back-link">← Back to portfolio</a></li>
-        <li><a href="az400-index.html">AZ-400 paths</a></li>
-        <li><a href="az104.html">AZ-104</a></li>
-        <li><a href="#path-overview">Path</a></li>
-{nav_nums}      </ul>
+{nav_extra}{nav_nums}      </ul>
       <div class="nav-right">
-        <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle theme">☀</button>
+        <button type="button" class="theme-toggle" id="themeToggle" aria-label="{theme_aria}">☀</button>
       </div>
     </div>
   </header>
@@ -304,47 +417,93 @@ def path_page(p):
     <div class="main-wrap">
       <main>
         <div class="fold-unfold">
-          <button type="button" id="foldAll" aria-label="Collapse all sections">Fold all</button>
-          <button type="button" id="unfoldAll" aria-label="Expand all sections">Unfold all</button>
-        </div>
+{fold_a}{fold_b}        </div>
         <section id="path-overview">
           <h2>{html.escape(p["title"])}</h2>
-          <p class="weight">Microsoft Learn learning path · Advanced</p>
-          <p>Official path: <a href="{p["url"]}" target="_blank" rel="noopener">{html.escape(p["title"])}</a>. {html.escape(p["blurb"])} Use the module links below for full units, labs, and assessments.</p>
+          <p class="weight">{weight}</p>
+          <p>{path_intro}</p>
         </section>
         <section id="modules">
-          <h2>Modules</h2>
+          <h2>{h2_mod}</h2>
 {blocks}        </section>
       </main>
     </div>
   </div>
-''' + SCRIPT
+''' + script
 
 
-def index_page():
-    rows = [
-        ("Git & Enterprise DevOps", "az400.html", "8", "Repositories, branching, PRs, hooks, inner source, technical debt."),
-    ]
-    for p in PATHS:
-        rows.append((p["title"].replace("AZ-400: ", ""), p["file"], str(len(p["mods"])), p["blurb"]))
-    trs = ""
-    for name, fn, count, desc in rows:
-        trs += f"            <tr><td><a href=\"{html.escape(fn)}\">{html.escape(name)}</a></td><td>{count}</td><td>{html.escape(desc)}</td></tr>\n"
-    head = STYLE_AND_HEAD.format(
-        title="AZ-400 Study Guides — Index",
-        desc="Index of Microsoft Learn AZ-400 study guide pages.",
-    )
-    return head + r'''  <header class="top-nav" id="topNav">
-    <a href="az400-index.html" class="site-title">AZ-400 Study Guides</a>
-    <button type="button" class="menu-toggle" id="menuToggle" aria-label="Open menu">☰</button>
+def index_page(*, locale: str, paths: list, index_href: str, az104_href: str, script: str) -> str:
+    if locale == "fr":
+        rows = [
+            (
+                "Git et DevOps d’entreprise",
+                "az400-all.html#path-git",
+                "8",
+                "Référentiels, branches, demandes de tirage, hooks, inner source, dette technique.",
+            ),
+        ]
+        for p in paths:
+            rows.append((p["title"].replace("AZ-400 : ", ""), p["file"], str(len(p["mods"])), p["blurb"]))
+        trs = ""
+        for name, fn, count, desc in rows:
+            trs += f"            <tr><td><a href=\"{html.escape(fn)}\">{html.escape(name)}</a></td><td>{count}</td><td>{html.escape(desc)}</td></tr>\n"
+        head = STYLE_AND_HEAD.format(
+            title="Guides AZ-400 — Index",
+            desc="Index des pages de révision AZ-400 Microsoft Learn.",
+            lang="fr",
+        )
+        nav_title = "Guides AZ-400"
+        h2 = "Parcours Microsoft Learn AZ-400"
+        weight = "Chaque page résume les modules avec des liens vers la formation officielle."
+        exam = 'Ces guides s’alignent sur les compétences de l’examen <a href="https://learn.microsoft.com/fr-fr/certifications/exams/az-400/" target="_blank" rel="noopener">AZ-400 Concevoir et implémenter des solutions Microsoft DevOps</a> et les collections Microsoft Learn.'
+        th = ("Parcours", "Modules", "Sujets")
+        menu_aria = "Ouvrir le menu"
+        theme_aria = "Basculer le thème"
+        back = "← Retour au portfolio"
+        extra_nav = f'''        <li><a href="{az104_href}">Guide AZ-104 (FR)</a></li>
+        <li><a href="../az104.html">AZ-104 (EN)</a></li>
+        <li><a href="../az400-all.html">Guide AZ-400 (EN)</a></li>
+        <li><a href="az400-all.html">Toute la page (FR)</a></li>
+        <li><a href="#paths">Parcours</a></li>
+'''
+        cross = '<p><a href="../az400-index.html">English index</a></p>\n'
+    else:
+        rows = [
+            ("Git & Enterprise DevOps", "az400.html", "8", "Repositories, branching, PRs, hooks, inner source, technical debt."),
+        ]
+        for p in paths:
+            rows.append((p["title"].replace("AZ-400: ", ""), p["file"], str(len(p["mods"])), p["blurb"]))
+        trs = ""
+        for name, fn, count, desc in rows:
+            trs += f"            <tr><td><a href=\"{html.escape(fn)}\">{html.escape(name)}</a></td><td>{count}</td><td>{html.escape(desc)}</td></tr>\n"
+        head = STYLE_AND_HEAD.format(
+            title="AZ-400 Study Guides — Index",
+            desc="Index of Microsoft Learn AZ-400 study guide pages.",
+            lang="en",
+        )
+        nav_title = "AZ-400 Study Guides"
+        h2 = "AZ-400 Microsoft Learn paths"
+        weight = "Each page summarizes modules with links to official training."
+        exam = 'These guides align with the <a href="https://learn.microsoft.com/en-us/certifications/exams/az-400/" target="_blank" rel="noopener">AZ-400 Designing and Implementing Microsoft DevOps Solutions</a> exam skills and Microsoft Learn collections.'
+        th = ("Path", "Modules", "Topics")
+        menu_aria = "Open menu"
+        theme_aria = "Toggle theme"
+        back = "← Back to portfolio"
+        extra_nav = f'''        <li><a href="{az104_href}">AZ-104</a></li>
+        <li><a href="fr/az400-index.html">Version française</a></li>
+        <li><a href="#paths">Paths</a></li>
+'''
+        cross = '<p><a href="fr/az400-index.html">Index français</a></p>\n'
+
+    return head + f'''  <header class="top-nav" id="topNav">
+    <a href="az400-index.html" class="site-title">{nav_title}</a>
+    <button type="button" class="menu-toggle" id="menuToggle" aria-label="{menu_aria}">☰</button>
     <div class="nav-wrap">
       <ul class="nav-links">
-        <li><a href="../index.html" class="back-link">← Back to portfolio</a></li>
-        <li><a href="az104.html">AZ-104</a></li>
-        <li><a href="#paths">Paths</a></li>
-      </ul>
+        <li><a href="{index_href}" class="back-link">{back}</a></li>
+{extra_nav}      </ul>
       <div class="nav-right">
-        <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle theme">☀</button>
+        <button type="button" class="theme-toggle" id="themeToggle" aria-label="{theme_aria}">☀</button>
       </div>
     </div>
   </header>
@@ -352,27 +511,76 @@ def index_page():
     <div class="main-wrap">
       <main>
         <section id="paths">
-          <h2>AZ-400 Microsoft Learn paths</h2>
-          <p class="weight">Each page summarizes modules with links to official training.</p>
-          <p>These guides align with the <a href="https://learn.microsoft.com/en-us/certifications/exams/az-400/" target="_blank" rel="noopener">AZ-400 Designing and Implementing Microsoft DevOps Solutions</a> exam skills and Microsoft Learn collections.</p>
+          <h2>{h2}</h2>
+          <p class="weight">{weight}</p>
+{cross}          <p>{exam}</p>
           <table>
-            <tr><th>Path</th><th>Modules</th><th>Topics</th></tr>
+            <tr><th>{th[0]}</th><th>{th[1]}</th><th>{th[2]}</th></tr>
 ''' + trs + r'''          </table>
         </section>
       </main>
     </div>
   </div>
-''' + SCRIPT
+''' + script
 
 
 def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--locale", choices=("en", "fr"), default="en")
+    ap.add_argument("--out-dir", default="", help="Output directory under study-guide (default: . or fr)")
+    args = ap.parse_args()
+    locale = args.locale
     base = os.path.dirname(os.path.abspath(__file__))
-    with open(os.path.join(base, "az400-index.html"), "w", encoding="utf-8") as f:
-        f.write(index_page())
-    for p in PATHS:
-        with open(os.path.join(base, p["file"]), "w", encoding="utf-8") as f:
-            f.write(path_page(p))
-    print("Wrote az400-index.html and", len(PATHS), "path pages.")
+    out_dir = os.path.join(base, args.out_dir or ("fr" if locale == "fr" else ""))
+    os.makedirs(out_dir, exist_ok=True)
+
+    if locale == "fr":
+        from az400_learn_snippets_fr import LEARN as learn_d
+        from az400_learn_unit_excerpts_fr import UNIT_EXCERPTS as unit_d
+
+        paths = PATHS_FR
+        index_href = "../../index.html"
+        az104_href = "az104.html"
+        az104_en_href = "../az104.html"
+        all_en_href = "../az400-all.html"
+        script = _script_for("fr")
+    else:
+        from az400_learn_snippets import LEARN as learn_d
+        from az400_learn_unit_excerpts import UNIT_EXCERPTS as unit_d
+
+        paths = PATHS
+        index_href = "../index.html"
+        az104_href = "az104.html"
+        az104_en_href = "az104.html"
+        all_en_href = "az400-all.html"
+        script = _script_for("en")
+
+    with open(os.path.join(out_dir, "az400-index.html"), "w", encoding="utf-8") as f:
+        f.write(
+            index_page(
+                locale=locale,
+                paths=paths,
+                index_href=index_href,
+                az104_href=az104_href,
+                script=script,
+            )
+        )
+    for p in paths:
+        with open(os.path.join(out_dir, p["file"]), "w", encoding="utf-8") as f:
+            f.write(
+                path_page(
+                    p,
+                    locale=locale,
+                    learn=learn_d,
+                    unit_excerpts=unit_d,
+                    index_href=index_href,
+                    az104_href=az104_href,
+                    az104_en_href=az104_en_href,
+                    all_en_href=all_en_href,
+                    script=script,
+                )
+            )
+    print("Wrote", os.path.join(out_dir or ".", "az400-index.html"), "and", len(paths), "path pages.")
 
 
 if __name__ == "__main__":

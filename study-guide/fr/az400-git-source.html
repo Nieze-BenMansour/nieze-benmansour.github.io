@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Source Git — AZ-400 (extrait pour build)</title>
+</head>
+<body>
+        <section id="path-overview">
+          <h2>AZ-400 : développement pour le DevOps d’entreprise</h2>
+          <p class="weight">Parcours d’apprentissage : Git, Azure DevOps, GitHub — 8 modules · Avancé</p>
+          <p>Ce guide suit le parcours Microsoft Learn <a href="https://learn.microsoft.com/fr-fr/training/paths/az-400-work-git-for-enterprise-devops/" target="_blank" rel="noopener">AZ-400 : développement pour le DevOps d’entreprise</a> (référentiels, branches, demandes de tirage, hooks, inner source, dette technique). Chaque module ci-dessous liste les <strong>objectifs d’apprentissage</strong>, des <strong>idées clés</strong> alignées sur les unités Learn, et des liens vers le module officiel. Le contenu est résumé depuis Microsoft Learn pour révision hors connexion ; ouvrez les liens de module pour les exercices, vidéos et vérifications des connaissances.</p>
+          <p><strong>Prérequis du parcours :</strong> aucun. <strong>Produits typiques :</strong> Azure DevOps, Azure Repos, Azure Pipelines, Azure Boards, Azure Artifacts, Azure Test Plans, GitHub.</p>
+          <table>
+            <tr><th>#</th><th>Module</th><th>Focus</th></tr>
+            <tr><td>1</td><td><a href="#mod-devops">Introduction à DevOps</a></td><td>Personnes, processus, produits ; valeur continue ; Azure DevOps et GitHub ; bases Git</td></tr>
+            <tr><td>2</td><td><a href="#mod-agile">Planifier l’agilité avec GitHub Projects et Azure Boards</a></td><td>GitHub Projects, tableaux, liaison Azure Boards–GitHub</td></tr>
+            <tr><td>3</td><td><a href="#mod-branches">Stratégies et flux de travail de branches</a></td><td>Modèles de branchement pour la livraison continue</td></tr>
+            <tr><td>4</td><td><a href="#mod-pr">Demandes de tirage dans Azure Repos</a></td><td>Revue de code, stratégies de branche, collaboration</td></tr>
+            <tr><td>5</td><td><a href="#mod-hooks">Hooks Git</a></td><td>Automatiser les contrôles et améliorer le flux</td></tr>
+            <tr><td>6</td><td><a href="#mod-innersource">Inner source</a></td><td>Forks et collaboration inter-équipes</td></tr>
+            <tr><td>7</td><td><a href="#mod-repos">Gérer les référentiels</a></td><td>Gros dépôts, nettoyage, releases (GitHub)</td></tr>
+            <tr><td>8</td><td><a href="#mod-debt">Dette technique</a></td><td>Repérer, gérer et revoir la qualité du code</td></tr>
+          </table>
+        </section>
+
+        <section id="modules">
+          <h2>Modules</h2>
+
+          <div class="collapsible-block" data-block="az400-m1">
+            <h3 id="mod-devops" class="block-title">1. Introduction à DevOps <button type="button" class="block-toggle" aria-label="Réduire la section">▼</button></h3>
+            <div class="block-content">
+          <p><a href="https://learn.microsoft.com/fr-fr/training/modules/introduction-to-devops/" target="_blank" rel="noopener">Introduction à DevOps</a> — Microsoft Learn (~42 min · 15 unités · Débutant).</p>
+          <h4 id="mod-devops-objectives">Objectifs d’apprentissage</h4>
+          <ul>
+            <li>Définir DevOps et ses principes (personnes, processus, produits pour une valeur continue).</li>
+            <li>Planifier la transformation : équipes, objectifs partagés, calendriers, structure agile.</li>
+            <li>Décrire Azure DevOps et GitHub à haut niveau.</li>
+            <li>Expliquer le contrôle de source et les fondamentaux Git en local.</li>
+            <li>Envisager une stratégie de gestion des licences.</li>
+            <li>Appliquer la réflexion sur le temps de cycle et l’apprentissage validé.</li>
+          </ul>
+          <h4 id="mod-devops-what">Qu’est-ce que DevOps ?</h4>
+          <p><strong>DevOps</strong> rapproche développement et opérations : équipes pluridisciplinaires, pratiques et outils partagés, responsabilité commune. On y trouve planification agile, <strong>intégration continue</strong>, <strong>livraison continue</strong> et supervision. DevOps est un <strong>parcours continu</strong>, pas un projet ponctuel.</p>
+          <p>Les <strong>résultats métier</strong> visés incluent une fréquence de déploiement plus élevée, un délai d’exécution plus court, un <strong>MTTR</strong> plus faible et moins d’échecs de changement — donc un time-to-market plus rapide et moins d’incidents.</p>
+          <h4 id="mod-devops-cycle">Temps de cycle, OODA et apprentissage validé</h4>
+          <p>La boucle <strong>OODA</strong> (Observer, Orienter, Décider, Agir) s’applique bien à la livraison : observer la télémétrie, orienter avec des expériences, décider des priorités, agir en livrant et en mesurant. Le <strong>temps de cycle</strong> va de l’idée ou du commit au retour production. Soyez guidés par les données sans paralysie : <strong>fail fast</strong>, <strong>apprentissage validé</strong> à chaque itération.</p>
+          <h4 id="mod-devops-platforms">Azure DevOps, GitHub, Git</h4>
+          <p>Le module présente <strong>Azure DevOps</strong> (Boards, Repos, Pipelines, Test Plans, Artifacts) et <strong>GitHub</strong>. Le <strong>contrôle de source</strong> trace les versions ; <strong>Git</strong> est distribué ; <strong>Azure Repos</strong> et <strong>GitHub</strong> hébergent les remotes et les flux de demandes de tirage.</p>
+          <h4 id="mod-devops-units">Unités (Learn)</h4>
+          <p>Introduction → Qu’est-ce que DevOps ? → Parcours → Équipes de transformation → Structure agile → Objectifs partagés → Azure DevOps / GitHub → Licences → Contrôle de source → Git en local → Récapitulatif.</p>
+            </div>
+          </div>
+
+          <div class="collapsible-block" data-block="az400-m2">
+            <h3 id="mod-agile" class="block-title">2. Planifier l’agilité avec GitHub Projects et Azure Boards <button type="button" class="block-toggle" aria-label="Réduire la section">▼</button></h3>
+            <div class="block-content">
+          <p><a href="https://learn.microsoft.com/fr-fr/training/modules/plan-agile-github-projects-azure-boards/" target="_blank" rel="noopener">Planifier l’agilité avec GitHub Projects et Azure Boards</a> — Microsoft Learn (~1 h 34 · 14 unités · Avancé).</p>
+          <h4 id="mod-agile-objectives">Objectifs d’apprentissage</h4>
+          <ul>
+            <li>Décrire GitHub Projects et Azure Boards.</li>
+            <li>Lier Azure Boards et GitHub.</li>
+            <li>Configurer et gérer GitHub Projects et les tableaux.</li>
+            <li>Personnaliser les vues de projet.</li>
+          </ul>
+          <h4 id="mod-agile-github-projects">GitHub Projects</h4>
+          <p><strong>GitHub Projects</strong> organisent et visualisent le travail (tableaux, roadmaps). Les tableaux suivent issues et pull requests avec colonnes et automatisation.</p>
+          <h4 id="mod-agile-azure-boards">Azure Boards</h4>
+          <p><strong>Azure Boards</strong> assure le suivi du travail Agile, Scrum, Kanban ; requêtes, tableaux de bord, <strong>Delivery Plans</strong> multi-équipes.</p>
+          <h4 id="mod-agile-link">Lier GitHub à Azure Boards</h4>
+          <p>L’intégration connecte commits, branches et PR aux éléments de travail pour la traçabilité (voir <a href="https://learn.microsoft.com/fr-fr/azure/devops/boards/github/" target="_blank" rel="noopener">GitHub et Azure Boards</a>). Utilisez les conventions AB#&lt;id&gt; dans les commits.</p>
+            </div>
+          </div>
+
+          <div class="collapsible-block" data-block="az400-m3">
+            <h3 id="mod-branches" class="block-title">3. Concevoir et implémenter des stratégies et flux de branches <button type="button" class="block-toggle" aria-label="Réduire la section">▼</button></h3>
+            <div class="block-content">
+          <p><a href="https://learn.microsoft.com/fr-fr/training/modules/manage-git-branches-workflows/" target="_blank" rel="noopener">Concevoir et implémenter des stratégies et flux de branches</a> — Microsoft Learn (~1 h 32 · 10 unités · Avancé).</p>
+          <h4 id="mod-branches-objectives">Objectifs d’apprentissage</h4>
+          <ul>
+            <li>Décrire les flux de branchement Git.</li>
+            <li>Implémenter des branches de fonctionnalité.</li>
+            <li>Implémenter GitHub Flow.</li>
+            <li>Créer un fork d’un dépôt.</li>
+          </ul>
+          <h4 id="mod-branches-choose">Choisir un flux</h4>
+          <p>Adaptez le flux à la taille d’équipe, au rythme de release et aux barrières qualité. <strong>GitHub Flow</strong> pour la livraison continue ; <strong>branches de fonctionnalité</strong> pour isoler avant fusion ; <strong>branches de release</strong> pour stabiliser ; <strong>fork</strong> pour l’open source ou des frontières d’accès strictes.</p>
+          <table>
+            <tr><th>Modèle</th><th>Adapté quand</th></tr>
+            <tr><td>GitHub Flow</td><td>Une branche principale toujours déployable ; branches courtes et PR ; automatisation forte.</td></tr>
+            <tr><td>Branche de fonctionnalité</td><td>Fonctionnalités parallèles, branche principale stable, revue avant fusion.</td></tr>
+            <tr><td>Branche de release</td><td>Releases planifiées, QA prolongée.</td></tr>
+            <tr><td>Fork</td><td>Contributeurs externes ; fusion depuis les forks.</td></tr>
+          </table>
+            </div>
+          </div>
+
+          <div class="collapsible-block" data-block="az400-m4">
+            <h3 id="mod-pr" class="block-title">4. Collaborer avec des demandes de tirage dans Azure Repos <button type="button" class="block-toggle" aria-label="Réduire la section">▼</button></h3>
+            <div class="block-content">
+          <p><a href="https://learn.microsoft.com/fr-fr/training/modules/collaborate-pull-requests-azure-repos/" target="_blank" rel="noopener">Collaborer avec des demandes de tirage dans Azure Repos</a> — Microsoft Learn (~30 min · 5 unités · Avancé).</p>
+          <p><strong>Prérequis (Learn) :</strong> bases du branchement Git ; Azure DevOps ; concepts de revue de code.</p>
+          <h4 id="mod-pr-objectives">Objectifs d’apprentissage</h4>
+          <ul>
+            <li>Mettre en œuvre des flux de demandes de tirage pour la collaboration à l’échelle.</li>
+            <li>Concevoir des revues qui améliorent qualité et transfert de connaissances.</li>
+            <li>Configurer stratégies de branche et gouvernance automatisée.</li>
+            <li>Exploiter l’intégration Azure Repos pour les modèles inter-équipes.</li>
+            <li>Utiliser la gouvernance des PR pour audit et conformité.</li>
+          </ul>
+          <h4 id="mod-pr-role">Rôle des demandes de tirage</h4>
+          <p>Les PR sont le lieu d’<strong>intégration sécurisée</strong> : revue, discussion, automatisation (build/test), règles de fusion.</p>
+          <h4 id="mod-pr-azure">Azure Repos en entreprise</h4>
+          <p><strong>Azure Repos</strong> s’intègre à Microsoft Entra ID, se connecte à <strong>Azure Boards</strong>, <strong>Azure Pipelines</strong>, <strong>Azure Test Plans</strong>. Les stratégies de branche encodent revues minimales, builds obligatoires, résolution des commentaires.</p>
+            </div>
+          </div>
+
+          <div class="collapsible-block" data-block="az400-m5">
+            <h3 id="mod-hooks" class="block-title">5. Explorer les hooks Git <button type="button" class="block-toggle" aria-label="Réduire la section">▼</button></h3>
+            <div class="block-content">
+          <p><a href="https://learn.microsoft.com/fr-fr/training/modules/explore-git-hooks/" target="_blank" rel="noopener">Explorer les hooks Git</a> — Microsoft Learn (~14 min · 5 unités · Avancé).</p>
+          <p><strong>Prérequis (Learn) :</strong> pratique Git solide ; scripts ; bases CI ; sensibilisation sécurité.</p>
+          <h4 id="mod-hooks-objectives">Objectifs d’apprentissage</h4>
+          <ul>
+            <li>Créer des hooks qui appliquent la qualité pour l’équipe.</li>
+            <li>Exécuter des contrôles avant et après commit.</li>
+            <li>Bloquer secrets et motifs dangereux.</li>
+            <li>Relier hooks, Azure DevOps et pipelines.</li>
+            <li>Partager les hooks pour une utilisation commune.</li>
+          </ul>
+          <h4 id="mod-hooks-why">Automatiser côté client</h4>
+          <p>Les <strong>hooks Git</strong> exécutent des scripts (<code>pre-commit</code>, <code>commit-msg</code>, <code>pre-push</code>). Ils favorisent le <strong>shift-left</strong> : formatage, lint, tests, secrets avant le serveur.</p>
+            </div>
+          </div>
+
+          <div class="collapsible-block" data-block="az400-m6">
+            <h3 id="mod-innersource" class="block-title">6. Planifier l’inner source <button type="button" class="block-toggle" aria-label="Réduire la section">▼</button></h3>
+            <div class="block-content">
+          <p><a href="https://learn.microsoft.com/fr-fr/training/modules/plan-fostering-inner-source/" target="_blank" rel="noopener">Planifier l’inner source</a> — Microsoft Learn (~20 min · 6 unités · Avancé).</p>
+          <p><strong>Prérequis (Learn) :</strong> bases Git et collaboration.</p>
+          <h4 id="mod-innersource-objectives">Objectifs d’apprentissage</h4>
+          <ul>
+            <li>Utiliser Git pour l’inner source à l’échelle de l’organisation.</li>
+            <li>Mettre en œuvre des flux en fork.</li>
+            <li>Choisir branches ou forks selon le scénario.</li>
+            <li>Partager le code efficacement entre forks.</li>
+          </ul>
+          <h4 id="mod-innersource-define">Qu’est-ce que l’inner source ?</h4>
+          <p>L’<strong>inner source</strong> applique les pratiques open source <em>en interne</em> : code découvrable, contribution par PR, propriété partagée.</p>
+            </div>
+          </div>
+
+          <div class="collapsible-block" data-block="az400-m7">
+            <h3 id="mod-repos" class="block-title">7. Gérer et configurer les référentiels <button type="button" class="block-toggle" aria-label="Réduire la section">▼</button></h3>
+            <div class="block-content">
+          <p><a href="https://learn.microsoft.com/fr-fr/training/modules/manage-git-repositories/" target="_blank" rel="noopener">Gérer et configurer les référentiels</a> — Microsoft Learn (~48 min · 15 unités · Avancé).</p>
+          <h4 id="mod-repos-objectives">Objectifs d’apprentissage</h4>
+          <ul>
+            <li>Travailler avec de gros dépôts Git.</li>
+            <li>Utiliser VFS for Git si pertinent.</li>
+            <li>Utiliser Git LFS pour les gros binaires.</li>
+            <li>Nettoyer les données du dépôt.</li>
+            <li>Gérer et automatiser les notes de publication GitHub.</li>
+          </ul>
+          <h4 id="mod-repos-large">Pourquoi les dépôts grossissent</h4>
+          <p>Historique long et gros binaires : <strong>clone superficiel</strong>, <strong>clone partiel</strong>, <strong>sparse-checkout</strong> réduisent la charge locale.</p>
+          <h4 id="mod-repos-lfs">Git LFS</h4>
+          <p><strong>Git LFS</strong> stocke les gros fichiers hors du magasin d’objets classique. Voir la <a href="https://docs.github.com/repositories/working-with-files/managing-large-files" target="_blank" rel="noopener">documentation GitHub</a>.</p>
+            </div>
+          </div>
+
+          <div class="collapsible-block" data-block="az400-m8">
+            <h3 id="mod-debt" class="block-title">8. Identifier la dette technique <button type="button" class="block-toggle" aria-label="Réduire la section">▼</button></h3>
+            <div class="block-content">
+          <p><a href="https://learn.microsoft.com/fr-fr/training/modules/identify-technical-debt/" target="_blank" rel="noopener">Identifier la dette technique</a> — Microsoft Learn (10 unités · Avancé).</p>
+          <h4 id="mod-debt-objectives">Objectifs d’apprentissage</h4>
+          <ul>
+            <li>Repérer et gérer la dette technique.</li>
+            <li>Utiliser des outils de qualité pour améliorer le logiciel.</li>
+            <li>Planifier des revues de code efficaces.</li>
+            <li>Comprendre complexité et métriques qualité.</li>
+          </ul>
+          <h4 id="mod-debt-define">Qu’est-ce que la dette technique ?</h4>
+          <p>La <strong>dette technique</strong> est le coût futur des raccourcis d’aujourd’hui — comme un intérêt financier. Elle réduit la vélocité et augmente les défauts ; il faut la <strong>rembourser</strong> régulièrement.</p>
+          <h4 id="mod-debt-measure">Mesure et outils</h4>
+          <p>Analyse automatisée (barrières qualité en CI), SonarCloud / SonarQube, <strong>GitHub Advanced Security</strong>, revue humaine pour prioriser.</p>
+            </div>
+          </div>
+        </section>
+</body>
+</html>
